@@ -360,6 +360,7 @@ def main():
             ['study_alias', 'sample_alias', experiment_OR_analysis], axis=1)  # remove the aliases
 
         experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
+        experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet
         experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
                                           index=False)  # print out the experiment spreadsheet
 
