@@ -258,13 +258,13 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
 
 
 def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis=None):
+
     if 'study_accession' not in metadata[0]: # if all the studies needs to be submitted
         sample_xml = Generate_xml(args.action, args.output).sample_xml_generator(metadata[0]) # generating the study xml
         study_acc_df = study_acc_not_in_spreadsheet(spreadsheet_original, metadata[0], experiment_OR_analysis).drop(['sample_alias', experiment_OR_analysis],
                                                                                axis=1) # submit the study xml and fetch and parse the submission reciept
     else: #not all the studies needs to submitted
-
-        if not pd.isna(metadata[0]['study_accession']).all: #if all the studies dont need submission
+        if not pd.isna(metadata[0]['study_accession']).all(): #if all the studies dont need submission
             study_acc_df = metadata[0]['study_accession'].to_frame(name='study_accession') #collect the accession in a dataframe
         else: #if some of the studies needs to be submitted
             studies_to_be_submitted = []
@@ -319,50 +319,62 @@ def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analy
 
         return study_acc_df
 
+def main():
+    spreadsheet_original = main_spreadsheet()  # capture the spreadsheet for reference
+    if not pd.isna(spreadsheet_original['experiment_name']).all() or not pd.isna(spreadsheet_original[
+                                                                                     'assemblyname']).all():  # at least the experiment (runs) or the analysis (assemblies) metadata needs for submission
+        if not pd.isna(spreadsheet_original['experiment_name']).all():  # contains experiment (runs) metadata
+            experiment_OR_analysis = 'experiment_name'  # reference for experiment data
+        else:  # contains analysis data only
+            experiment_OR_analysis = 'assemblyname'  # reference for analysis data
+        metadata = study_sample_xml_generation(
+            args.file)  # fetch the study and samples metadata separately using uploaded again
+        experimental_spreadsheet = experiment_analysis_spreadsheet()  # fetch the experiment and the analysis metadata
+        sample_acc_df = samples_final_arrangment(spreadsheet_original, metadata,
+                                                 experiment_OR_analysis)  # parse and submit the sample metadata if needed.
+
+        if 'study_accession' not in metadata[0]:  # all studies needs to be submitted
+            study_acc_df = studies_final_arrangment(spreadsheet_original, metadata,
+                                                    experiment_OR_analysis)  # arrange the studies format
+            metadata_acc = study_acc_df.merge(sample_acc_df, on='study_alias', how='right').drop_duplicates(
+                keep='first')  # merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed
+
+        else:  # some studies needs to be submitted
+
+            if not pd.isna(metadata[0]['study_accession']).all():  # all the studies dont need any submission
+                study_acc_df = studies_final_arrangment(spreadsheet_original, metadata,
+                                                        experiment_OR_analysis)  # arrange the studies metadata format
+                metadata_acc = pd.concat([study_acc_df, sample_acc_df], join='outer', axis=1).fillna(
+                    method='ffill')  # merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed and fill the NA's
+            else:  # some studies needs to be submitted and some are not
+                study_acc_df = studies_final_arrangment(spreadsheet_original, metadata,
+                                                        experiment_OR_analysis)  # arrange the studies metadata format
+                metadata_acc = study_acc_df.merge(sample_acc_df,
+                                                  on=['study_alias', 'sample_alias', experiment_OR_analysis],
+                                                  how='outer').drop_duplicates(
+                    keep='first')  # merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed and remove duplicates
+
+        experimental_spreadsheet = metadata_acc.merge(experimental_spreadsheet, on=experiment_OR_analysis,
+                                                      how='right')  # concat the study+sample metadata with the experiment/analysis metadata
+        experimental_spreadsheet = experimental_spreadsheet.drop(
+            ['study_alias', 'sample_alias', experiment_OR_analysis], axis=1)  # remove the aliases
+
+        experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
+        experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
+                                          index=False)  # print out the experiment spreadsheet
+
+    else:  # if experiment and analysis are not needed to be submitted
+        metadata = study_sample_xml_generation(
+            args.file)  # fetch the study and samples metadata separately using uploaded again
+        study_submission = studies_final_arrangment(spreadsheet_original,
+                                                    metadata)  # arrange the study metadata format and generate the xml and submit, return the submission output
+        sample_submission = samples_final_arrangment(spreadsheet_original,
+                                                     metadata)  # arrange the sample metadata format and generate the xml and submit, return the submission output
 
 
 
 if __name__ == '__main__':
-
-    spreadsheet_original = main_spreadsheet() # capture the spreadsheet for reference
-    if not pd.isna(spreadsheet_original['experiment_name']).all() or not pd.isna(spreadsheet_original['assemblyname']).all(): # at least the experiment (runs) or the analysis (assemblies) metadata needs for submission
-        if not pd.isna(spreadsheet_original['experiment_name']).all(): # contains experiment (runs) metadata
-            experiment_OR_analysis = 'experiment_name' # reference for experiment data
-        else: # contains analysis data only
-            experiment_OR_analysis = 'assemblyname' # reference for analysis data
-        metadata = study_sample_xml_generation(args.file) # fetch the study and samples metadata separately using uploaded again
-        experimental_spreadsheet = experiment_analysis_spreadsheet() #fetch the experiment and the analysis metadata
-        sample_acc_df = samples_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis) # parse and submit the sample metadata if needed.
+    main()
 
 
-        if 'study_accession' not in metadata[0]: #all studies needs to be submitted
-            study_acc_df = studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis) # arrange the studies format
-            metadata_acc = study_acc_df.merge(sample_acc_df, on ='study_alias', how='right').drop_duplicates(keep='first') #merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed
-
-        else: #some studies needs to be submitted
-
-            if not pd.isna(metadata[0]['study_accession']).all: # all the studies dont need any submission
-                study_acc_df = studies_final_arrangment(spreadsheet_original,metadata, experiment_OR_analysis) # arrange the studies metadata format
-                metadata_acc = pd.concat([study_acc_df, sample_acc_df], join='outer', axis=1).fillna(method='ffill') #merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed and fill the NA's
-            else: # some studies needs to be submitted and some are not
-                study_acc_df = studies_final_arrangment(spreadsheet_original,metadata, experiment_OR_analysis) # arrange the studies metadata format
-                print(study_acc_df)
-                print(sample_acc_df)
-                metadata_acc = study_acc_df.merge(sample_acc_df, on=['study_alias', 'sample_alias',experiment_OR_analysis], how='outer').drop_duplicates(
-                    keep='first') #merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed and remove duplicates
-
-
-        print(metadata_acc)
-        experimental_spreadsheet = metadata_acc.merge(experimental_spreadsheet, on=experiment_OR_analysis, how='right')  # concat the study+sample metadata with the experiment/analysis metadata
-        experimental_spreadsheet = experimental_spreadsheet.drop(['study_alias', 'sample_alias', experiment_OR_analysis], axis=1) #remove the aliases
-
-        experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all') # remove the empty columns
-        experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx", index=False) # print out the experiment spreadsheet
-
-    else: #if experiment and analysis are not needed to be submitted
-        metadata = study_sample_xml_generation(args.file) # fetch the study and samples metadata separately using uploaded again
-        study_submission = studies_final_arrangment(spreadsheet_original,metadata) # arrange the study metadata format and generate the xml and submit, return the submission output
-        sample_submission = samples_final_arrangment(spreadsheet_original,metadata) # arrange the sample metadata format and generate the xml and submit, return the submission output
-        print(study_submission)
-        print(sample_submission)
 

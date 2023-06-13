@@ -123,57 +123,6 @@ class Generate_xml:
             f.write(result)
 
 
-
-    """
-    Write pandas dataframe object to submission xml file
-    """
-    '''
-    def submission_xml_generator(self,df=None):
-        if df is not None:
-            df['release_date'] = pd.to_datetime(df['release_date'], format='%Y-%m-%d')
-            #df = df.assign(Date=lambda x: pd.to_datetime(x['release_date'].dt.strftime('%Y-%m-%d'), errors='coerce'))
-            release_date_list = [release_date for release_date in df['release_date'].dropna(axis=0).unique()]
-            if release_date_list:
-                for release_date in release_date_list:
-                    submission =self.submission_body(release_date.strftime('%Y-%m-%d'))
-                    print(release_date.strftime('%Y-%m-%d'))
-                    return submission
-            else:
-                submission = self.submission_body()
-                return submission
-
-        else:
-            submission =self.submission_body()
-            return submission
-
-
-
-
-    
-        doc, tag, text = Doc().tagtext()
-        xml_header = '<?xml version="1.0" encoding="UTF-8"?>'
-        doc.asis(xml_header)
-        with tag('SUBMISSION_SET'):
-            with tag('SUBMISSION'):
-                with tag("ACTIONS"):
-                    with tag('ACTION'):
-                        doc.stag(self.action.upper())
-                    if df is not None:
-                        if not df['release_date'].dropna().empty: # in case of multiple studies, it will take the release date of the first study only - make sure all the study release dates are the same
-                            with tag('ACTION'):
-                                doc.stag('HOLD', HoldUntilDate=str(df.iloc[0]['release_date']))
-
-        result_s = indent(
-            doc.getvalue(),
-            indentation='    ',
-            indent_text=False
-        )
-
-        with open(f"{self.dir}/submission.xml", "w") as f:
-            f.write(result_s)
-        '''
-
-
     def submission_xml_generator(self, release_date=None):
 
         doc, tag, text = Doc().tagtext()
