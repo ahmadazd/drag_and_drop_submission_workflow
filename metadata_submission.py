@@ -119,6 +119,7 @@ def submission(metadata_type, study_df=None):
                 return study_submission_xml_output
             else: # in case there is only one unique release date
                 Generate_xml(args.action, args.output).study_xml_generator(study_df)  # generate the study xml for all the studies in a single xml
+                submission = Generate_xml(args.action, args.output).submission_xml_generator(release_date_list[0].strftime('%Y-%m-%d'))  # generate the submission xml for each unique release date
                 submission_output = submission_command(metadata_type,release_date_list[0].strftime('%Y-%m-%d')) #submit the study xml using the single release date
                 return submission_output
 
@@ -214,7 +215,10 @@ def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis=N
 
 def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analysis=None):
     if 'sample_accession' not in metadata[1]: # all sample metadata needs to be submitted
+        sample_df = TrimmingSpreadsheet(metadata[1]).trimming_the_spreadsheet(metadata[1], 'sample')  # retrim the sample metadata
+        sample_xml = Generate_xml(args.action, args.output).sample_xml_generator(sample_df)  # generate sample xml
         sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis) #direct the metadata into submission
+
 
     else: #not all the samples metadata needs to be submitted
         #filtering out the samples that needs to be submitted and the once are not
@@ -253,14 +257,13 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
                 sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original,experiment_OR_analysis) # submit sample xml and collect and parse the submission receipt
                 sample_acc_df = pd.concat([samples_with_acc_df,sample_acc_df], join='outer', axis=0).reset_index(drop=True) # rearrange all the samples together to be included in the experimental spreadsheet
 
-        return sample_acc_df
+    return sample_acc_df
 
 
 
 def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis=None):
 
     if 'study_accession' not in metadata[0]: # if all the studies needs to be submitted
-        sample_xml = Generate_xml(args.action, args.output).sample_xml_generator(metadata[0]) # generating the study xml
         study_acc_df = study_acc_not_in_spreadsheet(spreadsheet_original, metadata[0], experiment_OR_analysis).drop(['sample_alias', experiment_OR_analysis],
                                                                                axis=1) # submit the study xml and fetch and parse the submission reciept
     else: #not all the studies needs to submitted
@@ -317,7 +320,7 @@ def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analy
                 study_acc_df = pd.concat([study_acc_df, studies_without_submission_df], join='outer', axis=0).reset_index(
                     drop=True) ## collect the accessions and alias of the studies that dont need submission
 
-        return study_acc_df
+    return study_acc_df
 
 def main():
     spreadsheet_original = main_spreadsheet()  # capture the spreadsheet for reference
