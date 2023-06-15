@@ -105,9 +105,8 @@ def submission(metadata_type, study_df=None):
 
         if release_date_list: #if there a release date mention in the spreadsheet
             if len(release_date_list) > 1: #if there is more than one unique release date in the spreadsheet
-                for index, row in study_df.dropna(axis=1).iterrows(): # collect each study to be submitted metadata row
+                for index, row in study_df.dropna(axis=0).iterrows(): # collect each study to be submitted metadata row
                     row = row.to_frame().T # create a dataframe of each row
-
                     Generate_xml(args.action, args.output).study_xml_generator(row, row['release_date'].dt.strftime('%Y-%m-%d').str.cat(sep='\n'))  # generate the study xml for each study with unique release date
                 study_submission_xml_output = ''
                 for release_date in release_date_list: # loop through the release dates
