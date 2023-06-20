@@ -47,6 +47,11 @@ args = parser.parse_args()
 
 
 def create_outdir(output):
+    """
+     create the archive directory
+     :param output: the path for the output directory
+     :returns the path for the archive directory
+      """
     outdir = f"{output}/xml_archive"
     if not os.path.exists(outdir):
         os.mkdir(outdir)
@@ -54,6 +59,11 @@ def create_outdir(output):
 
 
 def study_sample_xml_generation(spreadsheet):
+    """
+     parse the ERC000033 spreadsheet
+     :param spreadsheet: the path for the spreadsheet including the spreadsheet name
+     :returns tuple with the study dataframe and sample dataframe
+     """
     study_df = TrimmingSpreadsheet(spreadsheet).spreadsheet_parsed()[0]
     sample_df = TrimmingSpreadsheet(spreadsheet).spreadsheet_parsed()[1]
 
@@ -61,6 +71,13 @@ def study_sample_xml_generation(spreadsheet):
 
 
 def submission_command(metadata_type, release_date=None, study_release_date=None):
+    """
+    Navigate and calling the submission class for study and samples, and moving the xmls into the archive directory after submission
+    :param metadata_type: study or sample
+    :param release_date: in case of submission xml only, default : None
+    :param study_release_date : in case of study only, default : None
+    :returns the submission xml receipt
+     """
     if args.test is True:  # if there is a test flag
         submission_output = Submission(metadata_type, 'test', args.username, args.password,
                                        args.output, release_date, study_release_date).submission_command()  # submit using the test server
@@ -75,7 +92,6 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
             shutil.move(f'{args.output}/{metadata_type}_{release_date}.xml', f'{archive_dir}/{metadata_type}_{release_date}.xml')
         else:
             shutil.move(f'{args.output}/{metadata_type}.xml', f'{archive_dir}/{metadata_type}.xml')
-
         return submission_output
 
     if args.test is False:  # if there is no test flag
@@ -92,13 +108,19 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
             shutil.move(f'{args.output}/{metadata_type}_{release_date}.xml', f'{archive_dir}/{metadata_type}_{release_date}.xml')
         else:
             shutil.move(f'{args.output}/{metadata_type}.xml', f'{archive_dir}/{metadata_type}.xml')
-
         return submission_output  # return the submission output
 
 
 
 
 def submission(metadata_type, study_df=None):
+    """
+        generate sample, study, submission xmls and calling the submission_command function for submission
+        :param metadata_type: study or sample
+        :param study_df: the study dataframe to be submitted, in case of study only, default : None
+        :returns the submission xml receipt
+         """
+
     if study_df is not None: #study submission
         study_df['release_date'] = pd.to_datetime(study_df['release_date'], format='%Y-%m-%d') #convert to timestamp
         release_date_list = [release_date for release_date in study_df['release_date'].dropna(axis=0).unique()] #collect the unique release_date
@@ -138,6 +160,10 @@ def submission(metadata_type, study_df=None):
 
 
 def experiment_analysis_spreadsheet():
+    """
+     parse the analysis/experiment metadata from the ERC000033 spreadsheet
+     :returns experiment or analysis dataframe
+    """
     try:
         analysis_df = TrimmingSpreadsheet(args.file).spreadsheet_parsed()[3].dropna(axis=0, how='all') # trim the analysis spreadsheet
         experiment_df = TrimmingSpreadsheet(args.file).spreadsheet_parsed()[2] #trim the experiment spreadsheet
@@ -150,6 +176,11 @@ def experiment_analysis_spreadsheet():
 
 
 def main_spreadsheet():
+    """
+     upload and partially trim the ERC000033 spreadsheet
+     :returns trimmed but fully intact spreadsheet as a dataframe
+     """
+
     spreadsheet_original = TrimmingSpreadsheet(args.file).spreadsheet_upload()
     spreadsheet_original = spreadsheet_original.drop(spreadsheet_original.columns[0], axis=1).drop([2, 1, 3], axis=0)
     spreadsheet_original = spreadsheet_original.rename(columns=spreadsheet_original.iloc[0]).drop(spreadsheet_original.index[0]).reset_index(drop=True)
@@ -157,11 +188,21 @@ def main_spreadsheet():
 
 
 def fetching_receipt(receipt):
+    """
+     extract the xml receipt
+     :returns xml receipt
+      """
     xml_receipt = BeautifulSoup(receipt, features="lxml")
     return xml_receipt
 
 
 def extract_accession_alias(xml_receipt, receipt_type):
+    """
+    extract the alias and the accession from xml receipt
+    :param xml_receipt: xml receipt, the output of  from the fetching_receipt function
+    :param receipt_type: sample or study
+    :returns xml receipt
+      """
     acc_list =[]
     alias_list = []
 
@@ -174,6 +215,14 @@ def extract_accession_alias(xml_receipt, receipt_type):
 
 
 def study_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_analysis):
+    """
+    parse and navigate the study metadata that needs to be submitted
+     :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
+     :param metadata: study and sample metadata dataframe
+     :param experiment_OR_analysis: experiment_name or assemblyname, to flag if its analysis spreadsheet or experiment spreadsheet
+     :returns the studies accession and alias lists as a dataframe after submission
+     """
+
     study_submission = submission('study', metadata) # submit the study xml and return the output
     study_xml_receipt = fetching_receipt(study_submission)  # fetch the study xml reciept
 
@@ -194,6 +243,13 @@ def study_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_a
 
 
 def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis=None):
+    """
+        parse and navigate the sample metadata that needs to be submitted
+         :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
+         :param experiment_OR_analysis: experiment_name or assemblyname, to flag if its analysis spreadsheet or experiment spreadsheet
+         :returns the sample accession and alias lists as a dataframe after submission
+         """
+
     sample_submission = submission('sample') #sample submission
     sample_xml_receipt = fetching_receipt(sample_submission)  # fetch the xml submission receipt
     if sample_xml_receipt.findAll(success="false"):  # if the submission failed
@@ -204,18 +260,19 @@ def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis=N
 
     else: # some or all the samples not needed to be submitted
         sample_acc_alias = extract_accession_alias(sample_xml_receipt, "sample") #extract the submitted samples accession and alias
-        sample_df_1 = pd.DataFrame({'sample_accession': sample_acc_alias[0], 'sample_alias': sample_acc_alias[1]},
-                                   columns=['sample_accession', 'sample_alias'])
+        sample_df_1 = pd.DataFrame({'sample_accession': sample_acc_alias[0], 'sample_alias': sample_acc_alias[1]}, columns=['sample_accession', 'sample_alias'])
 
-        sample_acc_df = sample_df_1.merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]],
-                                          on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
+        sample_acc_df = sample_df_1.merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
         return sample_acc_df
 
 
 def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analysis=None):
     """sample metadata arrangement section
        parse the sample dataframe and retrieve the parts that need to be submitted
-       returns a full sample dataframe that contains new accession and the already submitted accessions
+       :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
+       :param metadata: study and sample metadata dataframe
+       :param experiment_OR_analysis: experiment_name or assemblyname, to flag if its analysis spreadsheet or experiment spreadsheet
+       :returns a full sample dataframe that contains new accession and the already submitted accessions
        """
 
     '''This Block in case there is no sample accession mentioned in all the spreadsheet, which means that all the aliases needs to be submitted'''
@@ -225,9 +282,9 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
         sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis) #direct the metadata into submission
         return sample_acc_df
 
-        '''This block in case there at least one study accession been mentioned'''
 
     else: #not all the samples metadata needs to be submitted
+        '''This block in case there at least one study accession been mentioned'''
         '''filtering out the samples that needs to be submitted and the once are not'''
         samples_with_acc = []
         samples_without_acc = []
@@ -271,10 +328,13 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
 
 
 def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis=None):
-    """studies metadata arrangement section
-    parse the study dataframe and retrieve the parts that need to be submitted
-    returns a full study dataframe that contains new accession and the already submitted accessions
-    """
+    """study metadata arrangement section
+       parse the study dataframe and retrieve the parts that need to be submitted
+       :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
+       :param metadata: study and sample metadata dataframe
+       :param experiment_OR_analysis: experiment_name or assemblyname, to flag if its analysis spreadsheet or experiment spreadsheet
+       :returns a full study dataframe that contains new accession and the already submitted accessions
+       """
     metadata_study = metadata[0].dropna(axis=0, how='all')
 
     '''This Block in case there is no study accession mentioned in all the spreadsheet, which means that all the aliases needs to be submitted'''
