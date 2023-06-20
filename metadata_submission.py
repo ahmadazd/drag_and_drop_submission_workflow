@@ -26,6 +26,7 @@ from submission import Submission
 from bs4 import BeautifulSoup
 import shutil
 import datetime
+from datetime import datetime
 import lxml
 import math
 
@@ -80,7 +81,7 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
      """
     archive_dir = create_outdir(f'{args.output}/xml_archive') # create the archive folder
     log_dir = create_outdir(f'{args.output}/logs') # create the log folder
-    now = datetime.datetime.now()
+    now = datetime.now()
     now_str = now.strftime("%d%m%y-%H%M") # datetime in minutes format
     if args.test is True:  # if there is a test flag
         submission_output = Submission(metadata_type, 'test', args.username, args.password,
@@ -153,7 +154,7 @@ def submission(metadata_type, study_df = None):
 
             else: # in case there is only one unique release date
                 Generate_xml(args.action, args.output).study_xml_generator(study_df)  # generate the study xml for all the studies in a single xml
-                submission = Generate_xml(args.action, args.output).submission_xml_generator(release_date_list[0].strftime('%Y-%m-%d'))  # generate the submission xml for each unique release date
+                submission = Generate_xml(args.action, args.output).submission_xml_generator(np.datetime64(release_date_list[0]).astype(datetime).strftime('%Y-%m-%d'))  # generate the submission xml for each unique release date
                 submission_output = submission_command(metadata_type,release_date_list[0].strftime('%Y-%m-%d')) #submit the study xml using the single release date
                 return submission_output
 
