@@ -1,5 +1,4 @@
-# coding=utf-8
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3.9
 
 # Copyright [2020] EMBL-European Bioinformatics Institute
 #
@@ -26,6 +25,7 @@ from generate_xml import Generate_xml
 from submission import Submission
 from bs4 import BeautifulSoup
 import shutil
+import datetime
 import lxml
 import math
 
@@ -41,18 +41,18 @@ parser.add_argument('-u', '--username', help='Webin submission account username 
 parser.add_argument('-p', '--password', help='password for Webin submission account', type=str, required=True)
 parser.add_argument('-t', '--test', help='Specify whether to use ENA test server for submission', action='store_true')
 parser.add_argument('-f', '--file', help='path for the metadata spreadsheet', type=str, required=True)
-parser.add_argument('-a', '--action', help='Specify the type of action needed ( ADD or MODIFY)', type=str, required=True)
+parser.add_argument('-a', '--action', help='Specify the type of action needed ( ADD or MODIFY)', type=str, required=True) # Modify flag is not working yet
 parser.add_argument('-o', '--output', help='experimental spreadsheet output directory', type=str, required=True)
 args = parser.parse_args()
 
 
 def create_outdir(output):
     """
-     create the archive directory
-     :param output: the path for the output directory
-     :returns the path for the archive directory
+     create a directory
+     :param output: the path for the output directory and the name of the directory to be created
+     :returns the path and the name of the directory that been created
       """
-    outdir = f"{output}/xml_archive"
+    outdir = f"{output}"
     if not os.path.exists(outdir):
         os.mkdir(outdir)
     return outdir
@@ -72,18 +72,21 @@ def study_sample_xml_generation(spreadsheet):
 
 def submission_command(metadata_type, release_date=None, study_release_date=None):
     """
-    Navigate and calling the submission class for study and samples, and moving the xmls into the archive directory after submission
+    Navigate and calling the submission class for study and samples, moving the xmls into the archive directory after submission, create the log files
     :param metadata_type: study or sample
     :param release_date: in case of submission xml only, default : None
     :param study_release_date : in case of study only, default : None
     :returns the submission xml receipt
      """
+    archive_dir = create_outdir(f'{args.output}/xml_archive') # create the archive folder
+    log_dir = create_outdir(f'{args.output}/logs') # create the log folder
+    now = datetime.datetime.now()
+    now_str = now.strftime("%d%m%y-%H%M") # datetime in minutes format
     if args.test is True:  # if there is a test flag
         submission_output = Submission(metadata_type, 'test', args.username, args.password,
                                        args.output, release_date, study_release_date).submission_command()  # submit using the test server
 
         ##Moving the submitted xml to an archive folder
-        archive_dir = create_outdir(args.output)
         if release_date is not None:
             shutil.move(f'{args.output}/submission_{release_date}.xml', f'{archive_dir}/submission_{release_date}.xml')
         else:
@@ -92,6 +95,11 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
             shutil.move(f'{args.output}/{metadata_type}_{release_date}.xml', f'{archive_dir}/{metadata_type}_{release_date}.xml')
         else:
             shutil.move(f'{args.output}/{metadata_type}.xml', f'{archive_dir}/{metadata_type}.xml')
+
+        # Creating the log file
+        with open(f'{log_dir}/submission_logs_{now_str}.txt', 'a') as f:
+            f.write(submission_output)
+
         return submission_output
 
     if args.test is False:  # if there is no test flag
@@ -99,7 +107,6 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
                                        args.output, release_date, study_release_date).submission_command()  # submit using the prod server
 
         ##Moving the submitted xml to an archive folder
-        archive_dir = create_outdir(args.output)
         if release_date is not None:
             shutil.move(f'{args.output}/submission_{release_date}.xml', f'{archive_dir}/submission_{release_date}.xml')
         else:
@@ -108,12 +115,17 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
             shutil.move(f'{args.output}/{metadata_type}_{release_date}.xml', f'{archive_dir}/{metadata_type}_{release_date}.xml')
         else:
             shutil.move(f'{args.output}/{metadata_type}.xml', f'{archive_dir}/{metadata_type}.xml')
+
+        # Creating the log file
+        with open(f'{log_dir}/submission_logs_{now_str}.txt', 'a') as f:
+            f.write(submission_output)
+
         return submission_output  # return the submission output
 
 
 
 
-def submission(metadata_type, study_df=None):
+def submission(metadata_type, study_df = None):
     """
         generate sample, study, submission xmls and calling the submission_command function for submission
         :param metadata_type: study or sample
@@ -242,7 +254,7 @@ def study_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_a
         return study_acc_df
 
 
-def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis=None):
+def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis = None):
     """
         parse and navigate the sample metadata that needs to be submitted
          :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
@@ -266,7 +278,7 @@ def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis=N
         return sample_acc_df
 
 
-def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analysis=None):
+def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analysis = None):
     """sample metadata arrangement section
        parse the sample dataframe and retrieve the parts that need to be submitted
        :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
@@ -327,7 +339,7 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
 
 
 
-def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis=None):
+def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis = None):
     """study metadata arrangement section
        parse the study dataframe and retrieve the parts that need to be submitted
        :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
@@ -406,9 +418,6 @@ def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analy
 
 
 
-
-
-
 def main():
 
     """The main section"""
@@ -470,7 +479,6 @@ def main():
         experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet
         experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
                                           index=False)  # print out the experiment spreadsheet
-
 
 
 
