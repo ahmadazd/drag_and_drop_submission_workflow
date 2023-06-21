@@ -9,8 +9,11 @@ nextflow pipeline command to run
 `nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf --spreadsheet <absolute spreadsheet_dir.xlsx> --webin_account <Webin-####> --webin_password <'password'> --context <context(reads/genome..etc)> --mode <mode(submit/validate)>`
 
 files directory: contains the files to be submitted (contains four fastq files for testing)
+
 output directory : contains the metadata_submission outputs ((experimental_spreadsheet)) and log files
+
 webin-cli directory : contains the webin_cli software
+
 spreadsheets directory : contains the metadata spreadsheet (contains two template spreadsheet)
 
 
