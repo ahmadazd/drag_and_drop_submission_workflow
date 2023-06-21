@@ -1,6 +1,7 @@
 # drag_and_drop_submission_workflow
 metadata_submission command to run standalone  
 ` python3 metadata_submission.py -f <spreadsheet_dir> -u <Webin-####> -p <'password'> -a add -t -o <output_dir>`
+
 bulk_webincli command to run standalone
 ` python3 bulk_webincli.py -s <spreadsheet_dir> -d <files_dir> -m <mode(submit/validate)> -u <Webin-####> -p <'password'> -g <context> -w <webin_cli software directory>`
 
