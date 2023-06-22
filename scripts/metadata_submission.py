@@ -153,9 +153,10 @@ def submission(metadata_type, study_df = None):
 
 
             else: # in case there is only one unique release date
+                release_date_formatted = datetime.strptime(str(release_date_list[0]).rstrip("T00:00:00.000000000"),'%Y-%m-%d').strftime('%Y-%m-%d')
                 Generate_xml(args.action, args.output).study_xml_generator(study_df)  # generate the study xml for all the studies in a single xml
-                submission = Generate_xml(args.action, args.output).submission_xml_generator(np.datetime64(release_date_list[0]).astype(datetime).strftime('%Y-%m-%d'))  # generate the submission xml for each unique release date
-                submission_output = submission_command(metadata_type,release_date_list[0].strftime('%Y-%m-%d')) #submit the study xml using the single release date
+                submission = Generate_xml(args.action, args.output).submission_xml_generator(release_date_formatted)  # generate the submission xml for each unique release date
+                submission_output = submission_command(metadata_type,release_date_formatted) #submit the study xml using the single release date
                 return submission_output
 
 
