@@ -14,6 +14,10 @@ output directory : contains the metadata_submission outputs ((experimental_sprea
 
 webin-cli directory : contains the webin_cli software
 
-spreadsheets directory : contains the metadata spreadsheet (contains two template spreadsheet)
+spreadsheets directory : contains the metadata spreadsheet (contains two template spreadsheets)
+
+## NOTE: before running the Nextflow workflow run the following command (the first time only)
+
+`pip install -e .`
 
 
