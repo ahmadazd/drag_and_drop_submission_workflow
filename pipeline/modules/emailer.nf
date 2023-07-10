@@ -10,9 +10,11 @@ process EMAILER {
 	//publishDir "/temp", mode: 'copy' 
 
 input:
-    val emailPass
-    path config
-    path log_dir
+	path logdir_1
+	path logdir_2
+	val sender_email
+	val rec_email
+	val password
 
 output:
 	stdout
@@ -23,11 +25,11 @@ output:
 
 script:
  """
- emailer --emailPass $emailPass --config $config --log $log_dir
+/mnt/c/Users/zahra/Documents/scripts/Python/drag_and_drop_submission_workflow/scripts/d_and_d_emailer.py --logdir_1 $logdir_1 --logdir_2 $logdir_2 --sender_email $sender_email --rec_email $rec_email --password $password
  """
  }
  
  
 workflow {
-  EMAILER_CH = EMAILER(params.emailPass, params.config, params.log_dir)
+  EMAILER_CH = EMAILER(params.logdir_1, params.logdir_2, params.sender_email, params.rec_email, params.password)
 }
