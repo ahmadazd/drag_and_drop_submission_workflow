@@ -162,17 +162,19 @@ else:
 
 # Creating directory for drag and drop spreadsheet & moving latest version here
 os.mkdir(f'{outdir}/{trans_int_outdir}/input_spreadsheet') #creates single child dir over mkdirs
-i_sheets = glob.glob('*.xlsx*')
+
+i_sheets = glob.glob(f'{outdir}/*.xlsx*') # retains full path to each file
 datestrings = sorted([sheet.split(".")[-2] for sheet in i_sheets]) # extracts file datestrings (e.g. 2023-01-25T12:45:08) into sorted list
 latest_ds = str(datestrings[-1]) # extracts most recent datestring
 
 latest_file = (str([sheet for sheet in i_sheets if latest_ds in sheet])[1:-1]).strip('\'') # removing [] and '' from list element
-# print(latest_file)
-try:
-    os.rename(f'{outdir}/{latest_file}', f'{outdir}/{trans_int_outdir}/input_spreadsheet/{latest_file}')
 
-except:
-    print("ERROR in transferring file to input_spreadsheet directory. Exiting", file=sys.stderr)
+try:
+    os.rename(f'{latest_file}', f'{outdir}/{trans_int_outdir}/input_spreadsheet/{os.path.basename(latest_file)}')
+
+except Exception as error:
+    print(f"ERROR in transferring file to input_spreadsheet directory. Exiting", file=sys.stderr)
+    print(error)
     sys.exit()
 
 # Obtaining a list of data files to submit
@@ -237,9 +239,9 @@ else:
 
 
 
-### To test:
-# gzip data files in pass dir
-# todo: test if this script works as a re-run
-# # TODO: test if this can run locally or not
-#------
-
+# ### To test:
+# # gzip data files in pass dir
+# # todo: test if this script works as a re-run
+# # # TODO: test if this can run locally or not
+# #------
+# 
