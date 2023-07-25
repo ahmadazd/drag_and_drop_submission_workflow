@@ -2,6 +2,8 @@
 
 nextflow.enable.dsl=2 
 //assigner_dir = "/scratch"
+params.metadata_log = '/'
+params.webinCli_log = '/'
 
 process EMAILER {
 	tag "emailer"                  
@@ -10,8 +12,8 @@ process EMAILER {
 	//publishDir "/temp", mode: 'copy' 
 
 input:
-	path logdir_1
-	path logdir_2
+	path metadata_log
+	path webinCli_log
 	val sender_email
 	val rec_email
 	val password
@@ -25,11 +27,11 @@ output:
 
 script:
  """
-/mnt/c/Users/zahra/Documents/scripts/Python/drag_and_drop_submission_workflow/scripts/d_and_d_emailer.py --logdir_1 $logdir_1 --logdir_2 $logdir_2 --sender_email $sender_email --rec_email $rec_email --password $password
+	emailer --logdir_1 $metadata_log --logdir_2 $webinCli_log --sender_email $sender_email --rec_email $rec_email --password $password
  """
  }
  
  
 workflow {
-  EMAILER_CH = EMAILER(params.logdir_1, params.logdir_2, params.sender_email, params.rec_email, params.password)
+  EMAILER_CH = EMAILER(params.metadata_log, params.webinCli_log, params.sender_email, params.rec_email, params.password)
 }

@@ -18,15 +18,18 @@ nextflow.enable.dsl=2
 params.help = false
 
 // mandatory params
-params.spreadsheet = null
 params.webin_account = null  
 params.webin_password = null
 params.action = null
 params.xml_output = null
 params.context = null
-params.files_dir = null
 params.mode = null
 params.webinCli_dir = null
+params.sender_email = null
+params.rec_email = null
+params.senderEmail_password = null
+params.uuid = null
+params.transfer_output = null
 
 
 // Print usage
@@ -34,18 +37,23 @@ def helpMessage() {
   log.info """
         Usage:
         The typical command for running the pipeline is as follows:
-        nextflow run dh_mangment_workflow.nf --datahub_name <DATAHUB NAME> --datahub_password <DATAHUB PASS> --action <FULL/LINK/MODIFY>"
+        nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf  --webin_account <webin account id> --webin_password <webin account password>  --context <reads/genome> --mode <validate/submit> --senderEmail_password <email password> --uuid <uuid>
+
+        Add the <sender_email> and <rec_email> value in the nextflow.config file
 
         Mandatory arguments:
-        --spreadsheet                    The absolute path for the spreadsheet file (Retrieved from the nextflow.config file)
         --webin_account                  The user webin account
         --webin_password                 The password of the webin account 
-        --action                         action to submit the metadata (add or modify) (Retrieved from the nextflow.config file)
+        --action                         Action to submit the metadata (add or modify) (Retrieved from the nextflow.config file)
         --xml_output                     The output of the metadata xml files (Retrieved from the nextflow.config file)
         --context                        Type of files
-        --files_dir                      The absolute path for the files
-        --mode                           The type of the submission mode (submit or validate) (Retrieved from the nextflow.config file)
-        --webinCli_dir                    The absolute path for the webin-cli file directory
+        --mode                           The type of file submission mode (submit or validate)
+        --webinCli_dir                   The absolute path for the webin-cli file directory (Retrieved from the nextflow.config file)
+        --sender_email                   Sender email address (Retrieved from the nextflow.config file)
+        --rec_email                      Receiver email address(s) (Retrieved from the nextflow.config file)
+        --senderEmail_password           Sender email password
+        --uuid                           User specific access key for drag and drop tool
+        --transfer_output                The absolute path for the transfer script output directory (the place house the files and the input metadata spreadsheet ) (Retrieved from the nextflow.config file)
 
         Optional arguments:
         --help                         This usage statement.
@@ -58,15 +66,18 @@ if (params.help) {
     exit 0
 }
 
-assert params.spreadsheet, "Parameter 'spreadsheet' is not specified"
 assert params.webin_account, "Parameter 'webin_account' is not specified"
 assert params.webin_password, "Parameter 'webin_password' is not specified"
 assert params.action, "Parameter 'action' is not specified"
 assert params.xml_output, "Parameter 'xml_output' is not specified"
 assert params.context, "Parameter 'context' is not specified"
-assert params.files_dir, "Parameter 'files_dir' is not specified"
 assert params.mode, "Parameter 'mode' is not specified"
 assert params.webinCli_dir, "Parameter 'webinCli_dir' is not specified"
+assert params.sender_email, "Parameter 'sender_email' is not specified"
+assert params.rec_email, "Parameter 'rec_email' is not specified"
+assert params.senderEmail_password, "Parameter 'senderEmail_password' is not specified"
+assert params.uuid, "Parameter 'uuid' is not specified"
+assert params.transfer_output, "Parameter 'transfer_output' is not specified"
 
 // Import modules/subworkflows
 include { subworkflow } from '../../subworkflow/subworkflow.nf'
@@ -74,5 +85,5 @@ include { subworkflow } from '../../subworkflow/subworkflow.nf'
 // Run main workflow
 workflow {
     main:
-    subworkflow(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.files_dir, params.mode, params.webinCli_dir)
+    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output)
 }

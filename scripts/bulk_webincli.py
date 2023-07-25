@@ -138,11 +138,6 @@ def get_args():
     return args
 
 def webinCli_latest_download(webinCli_dir):
-    """
-        Checking and retrieving the latest Webin Cli jar file
-        :param: webinCli_dir: directory path for webin-cli
-        :return: Latest Webin Cli jar file name
-    """
     print('checking if webin-cli is the latest release')
     download_command = 'curl -s https://api.github.com/repos/enasequence/webin-cli/releases/latest |  grep "browser_download_url"  | head -1 | cut -d : -f 2,3 | tr -d \\"'
     sp = subprocess.Popen(download_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -332,7 +327,7 @@ class SubmissionWebinCLI:
         print(self.log_path_err, self.log_path_out)
 
         self.all_error_runs = Path(self.args.directory) / "failed_validation.txt"
-        self.log_path_total = Path(self.args.directory) / "submissions" / f"log_total_{now_str}.txt"
+        self.log_path_total = Path(self.args.directory) / "submissions" / f"webinCli_log_total_{now_str}.txt"
 
     def construct_command(self):
         """

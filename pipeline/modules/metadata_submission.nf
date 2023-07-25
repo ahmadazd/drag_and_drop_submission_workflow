@@ -16,8 +16,8 @@ input:
 
 
 output:
-	path "$output/experimental_spreadsheet.xlsx"
-	//path $log_dir // this is needed to link the log file timing to the emailer process, means to start the emailer process after finishing the metadata_submission process (check if this possible in this way)
+	path "$output/experimental_spreadsheet.xlsx", emit: spreadsheet_log, optional: true
+	path "$output/logs", emit: metadata_log
 
 script:
  """
@@ -27,5 +27,5 @@ script:
  
  
 workflow {
-   METADATA_SUBMISSION_CH = METADATA_SUBMISSION(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.output).view()
+   METADATA_SUBMISSION_CH = METADATA_SUBMISSION(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.output)
 }

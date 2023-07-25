@@ -16,9 +16,8 @@ input:
     path webinCli_dir
 
 output:
-	path "$files_dir/submissions/webin-cli.report"
-	//path $log_dir // this is needed to link the log file timing to the emailer process, means to start the emailer process after finishing the bulk_webincli process (check if this possible in this way)
-
+	path "$files_dir/submissions/webin-cli.report", emit : webinCliend_report
+	path "$files_dir/submissions", emit : webinCli_log
 
 script:
  """

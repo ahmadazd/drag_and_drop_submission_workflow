@@ -9,20 +9,20 @@ process TRANSFER_INTEGRITY {
 
 input:
 	val uuid
-	path output_dir // optional input value? user specified output dir
+	path transfer_output // optional input value? user specified output dir
 
 
 output:
-	path $spreadsheet // path to user metadata spreadsheet
-	path $pass_files_dir // path to pass data files folder
+	path "$transfer_output/transfer_integrity_output/input_spreadsheet", emit: spreadsheet_dir // path to user metadata spreadsheet
+	path "$transfer_output/transfer_integrity_output/pass", emit: dataFiles_dir// path to pass data files folder
 
 
 script:
-if ( params.output ) {
+if ( params.transfer_output) {
  """
 echo transferring files to user specified output directory
 
-transfer_integrity_check.py -u $uuid -o $output
+transfer -u $uuid -o $transfer_output
  """
  }
  
@@ -30,10 +30,10 @@ else {
  """
 echo transferring files to default codon location
 
-transfer_integrity_check.py -u $uuid
+transfer -u $uuid
  """
- }
+ }}
  
 workflow {
-   TRANSFER_INTEGRITY_CH = TRANSFER_INTEGRITY(params.uuid).view() //optional outdir parameter?
+   TRANSFER_INTEGRITY_CH = TRANSFER_INTEGRITY(params.uuid, params.transfer_output) //optional outdir parameter?
 }
