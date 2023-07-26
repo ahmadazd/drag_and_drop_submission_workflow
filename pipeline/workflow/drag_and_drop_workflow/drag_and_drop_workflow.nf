@@ -30,6 +30,7 @@ params.rec_email = null
 params.senderEmail_password = null
 params.uuid = null
 params.transfer_output = null
+params.environment = null
 
 
 // Print usage
@@ -37,7 +38,7 @@ def helpMessage() {
   log.info """
         Usage:
         The typical command for running the pipeline is as follows:
-        nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf  --webin_account <webin account id> --webin_password <webin account password>  --context <reads/genome> --mode <validate/submit> --senderEmail_password <email password> --uuid <uuid>
+        nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf  --webin_account <webin account id> --webin_password <webin account password>  --context <reads/genome> --mode <validate/submit> --senderEmail_password <email password> --uuid <uuid> --environment <test/prod>
 
         Add the <sender_email> and <rec_email> value in the nextflow.config file
 
@@ -54,6 +55,7 @@ def helpMessage() {
         --senderEmail_password           Sender email password
         --uuid                           User specific access key for drag and drop tool
         --transfer_output                The absolute path for the transfer script output directory (the place house the files and the input metadata spreadsheet ) (Retrieved from the nextflow.config file)
+        --environment                    The environment type (test/prod)
 
         Optional arguments:
         --help                         This usage statement.
@@ -78,6 +80,7 @@ assert params.rec_email, "Parameter 'rec_email' is not specified"
 assert params.senderEmail_password, "Parameter 'senderEmail_password' is not specified"
 assert params.uuid, "Parameter 'uuid' is not specified"
 assert params.transfer_output, "Parameter 'transfer_output' is not specified"
+assert params.environment.toLowerCase() == 'test' || params.environment.toLowerCase() == 'prod' || params.environment.toLowerCase() == 'production',  "Parameter 'environment' is not specified, please specify one of the options(test or prod)"
 
 // Import modules/subworkflows
 include { subworkflow } from '../../subworkflow/subworkflow.nf'
@@ -85,5 +88,5 @@ include { subworkflow } from '../../subworkflow/subworkflow.nf'
 // Run main workflow
 workflow {
     main:
-    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output)
+    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output, params.environment)
 }

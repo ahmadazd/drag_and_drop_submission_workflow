@@ -436,6 +436,7 @@ def main():
     """The main section"""
 
     spreadsheet_original = main_spreadsheet()  # capture the spreadsheet for reference
+    create_outdir(args.output) # create the output directory
 
     '''
     This block will run only if there is an experimental/analysis part filled in the spreadsheet

@@ -14,18 +14,28 @@ input:
     path files_dir
     val mode
     path webinCli_dir
+	env environment
 
 output:
 	path "$files_dir/submissions/webin-cli.report", emit : webinCliend_report
 	path "$files_dir/submissions", emit : webinCli_log
 
 script:
- """
- bulk_webincli -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir
- """
+if (params.environment.toLowerCase() == 'test') {
+	"""
+	bulk_webincli -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir -t
+	"""
+}
+
+else if (params.environment.toLowerCase() == 'prod' || params.environment.toLowerCase() == 'production') {
+	"""
+	bulk_webincli -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir
+	"""
+
+}
  }
  
  
 workflow {
-   BULK_WEBINCLI = ASSIGNER(params.spreadsheet, params.webin_account, params.webin_password, params.context, params.files_dir, params.mode, params.webinCli_dir).view()
+   BULK_WEBINCLI = ASSIGNER(params.spreadsheet, params.webin_account, params.webin_password, params.context, params.files_dir, params.mode, params.webinCli_dir, params.environment).view()
 }

@@ -13,6 +13,7 @@ input:
 	val webin_password
     val action
 	path output
+	env environment
 
 
 output:
@@ -20,12 +21,19 @@ output:
 	path "$output/logs", emit: metadata_log
 
 script:
- """
- metadata_submission -f $spreadsheet -u $webin_account -p $webin_password -a $action -o $output -t
- """
+if ( params.environment.toLowerCase() == 'test') {
+	"""
+	metadata_submission -f $spreadsheet -u $webin_account -p $webin_password -a $action -o $output -t
+	"""
+ }
+
+ else if (params.environment.toLowerCase() == 'prod' || params.environment.toLowerCase() == 'production') {
+	"""
+	metadata_submission -f $spreadsheet -u $webin_account -p $webin_password -a $action -o $output
+	"""
  }
  
- 
+}
 workflow {
-   METADATA_SUBMISSION_CH = METADATA_SUBMISSION(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.output)
+   METADATA_SUBMISSION_CH = METADATA_SUBMISSION(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.output, params.environment)
 }
