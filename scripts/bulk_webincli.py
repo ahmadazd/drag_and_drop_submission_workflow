@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 import fnmatch
 import os
+from chr_list_generator import Chr_list_generator
 import multiprocessing
 import glob
 
@@ -137,6 +138,7 @@ def get_args():
         args.webinCliPath = f'{args.webinCliPath}/{webinCli_file}'
     return args
 
+
 def webinCli_latest_download(webinCli_dir):
     print('checking if webin-cli is the latest release')
     download_command = 'curl -s https://api.github.com/repos/enasequence/webin-cli/releases/latest |  grep "browser_download_url"  | head -1 | cut -d : -f 2,3 | tr -d \\"'
@@ -222,7 +224,7 @@ class GenerateManifests:
         if (self.context == "reads"):  # If reads are being submitted, get the name of the file to obtain a prefix
             prefix_field = row_meta.get("uploaded file 1")
         elif (self.context == "genome"):  # If an un-annotated genome is being submitted get the name of the fasta file to obtain a prefix
-            prefix_field = row_meta.get("fasta")
+            prefix_field = row_meta.get("fasta/flatfile name")
         prefix = Path(prefix_field).stem  # Get just the name of the run without the file extensions (indexing 0 required as both are tuples)
         manifest_file = Path(self.manifest_dir) / "Manifest_{}.txt".format(prefix)
         return manifest_file
@@ -431,6 +433,8 @@ def main():
     args = get_args()  # Get arguments provided to the tool
     to_process = spreadsheet_format(
         args.spreadsheet)  # Create a dataframe of data to be processed (submitted or validated)
+    if args.geneticContext == 'genome':
+        Chr_list_generator(args.directory).chromosome_list()
 
     # Generate the manifest files
     create_manifests = GenerateManifests(to_process, args.directory, args.geneticContext)
