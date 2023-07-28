@@ -88,6 +88,7 @@ def transfer():
     # path = f"{codon_dir}/{args.UUID}/"
     # Data file extensions accepted by tool
     file_exts = ('*fasta*','*fastq*','*cram*','*bam*')
+    sheet_exts = ('*.xls*','*.tsv*','*.csv*','*.txt*')
     # Name of the columns in the summary dataframe
     file_name = "file_name"
     uploaded_md5_val = "uploaded_md5_value"
@@ -119,7 +120,8 @@ def transfer():
         try:
             os.makedirs(f"{outdir}/{trans_int_outdir}")
             print(f"Successfully created output directory {outdir}/{trans_int_outdir}")
-        except Exception:
+        except Exception as error:
+            print(error)
             print(f"\n ERROR in transfer_integrity_check.py: could not create output directory '{outdir}/{trans_int_outdir}'. Exiting.", file=sys.stderr)
             sys.exit()
     if not os.path.exists(f"{outdir}/{trans_int_outdir}"):
@@ -189,10 +191,13 @@ def transfer():
     if not os.path.exists(f'{outdir}/{trans_int_outdir}/input_spreadsheet'):
         os.mkdir(f'{outdir}/{trans_int_outdir}/input_spreadsheet') #creates single child dir over mkdirs
 
-    i_sheets = glob.glob(f'{outdir}/*.xlsx*') # retains full path to each file
-    datestrings = sorted([sheet.split(".")[-2] for sheet in i_sheets]) # extracts file datestrings (e.g. 2023-01-25T12:45:08) into sorted list
-    latest_ds = str(datestrings[-1]) # extracts most recent datestring
+    i_sheets = []
+    for sh_ext in sheet_exts:
+        i_sheets += glob.glob(f'{outdir}/{sh_ext}')
+    print(i_sheets)
 
+    datestrings = sorted([sheet.split(".")[-2] for sheet in i_sheets])  # extracts file datestrings (e.g. 2023-01-25T12:45:08) into sorted list
+    latest_ds = str(datestrings[-1])  # extracts most recent datestring
     latest_file = (str([sheet for sheet in i_sheets if latest_ds in sheet])[1:-1]).strip('\'') # removing [] and '' from list element
 
     try:
@@ -264,7 +269,7 @@ def main():
     transfer()
 
 if __name__ == '__main__':
-    main
+    main()
 
 
 
