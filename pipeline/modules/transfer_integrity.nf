@@ -22,7 +22,7 @@ if ( params.transfer_output) {
  """
 echo transferring files to user specified output directory
 
-transfer -u $uuid -o $transfer_output
+transfer -u $uuid -o $PWD/$transfer_output
  """
  }
  
