@@ -224,7 +224,8 @@ class GenerateManifests:
         if (self.context == "reads"):  # If reads are being submitted, get the name of the file to obtain a prefix
             prefix_field = row_meta.get("uploaded file 1")
         elif (self.context == "genome"):  # If an un-annotated genome is being submitted get the name of the fasta file to obtain a prefix
-            prefix_field = row_meta.get("fasta/flatfile name")
+            row_meta['fasta'] = row_meta.pop('fasta/flatfile name')
+            prefix_field = row_meta.get("fasta")
         prefix = Path(prefix_field).stem  # Get just the name of the run without the file extensions (indexing 0 required as both are tuples)
         manifest_file = Path(self.manifest_dir) / "Manifest_{}.txt".format(prefix)
         return manifest_file
@@ -252,6 +253,8 @@ class GenerateManifests:
                     field = "cram"
                 elif ".bam" in str(value):
                     field = "bam"
+            if field == "fasta/flatfile name":
+                field = "fasta"
             field = field.upper()
             first_col.append(str(field))
             second_col.append(str(value))

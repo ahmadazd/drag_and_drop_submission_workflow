@@ -336,6 +336,7 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
 
         else: # there is experiment/ analysis metadata to be submitted
             samples_with_acc_df = pd.DataFrame(samples_with_acc, columns=['sample_accession']) # collect sample accession that do not need to be submitted in dataframe
+            samples_without_acc_df = samples_without_acc_df.dropna(axis=1)
             if samples_without_acc_df.empty: # in case there is no samples to be submitted
                 sample_acc_df = samples_with_acc_df.merge(spreadsheet_original[['study_alias', 'sample_accession', 'sample_alias', experiment_OR_analysis]],
                                           on='sample_accession', how='left')#.fillna(method='ffill') # merge the sample accessions with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
@@ -495,6 +496,8 @@ def main():
         if not pd.isna(experimental_spreadsheet['study_accession']).any() and not pd.isna(experimental_spreadsheet['sample_accession']).any():
             experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
             experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet
+            if experiment_OR_analysis == 'assemblyname':
+                experimental_spreadsheet["chromosome_list"] = f'{experimental_spreadsheet["fasta/flatfile name"][0].strip("*.fasta.gz")}_chromosomelist.txt.gz'
 
             experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
                                               index=False)  # print out the experiment spreadsheet
