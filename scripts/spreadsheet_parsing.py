@@ -34,7 +34,6 @@ class TrimmingSpreadsheet:
     General trimming to the metadata in the spreadsheet and save it in a panda dataframe object
     """
     def trimming_the_spreadsheet(self, trimmed_df, metadata):
-        trimmed_df = trimmed_df.dropna(axis=0, how='all')
         trimmed_df["submission_tool"] = 'drag and drop uploader tool' #study #to inject constant into trimmed df
 
 
@@ -57,12 +56,20 @@ class TrimmingSpreadsheet:
     def spreadsheet_upload(self):
         if fnmatch.fnmatch(self.spreadsheet, '*.xls*'):
             metadata_df = pd.read_excel(self.spreadsheet, header=0, sheet_name='Sheet1')
+        elif fnmatch.fnmatch(self.spreadsheet, '*txt*') or fnmatch.fnmatch(self.spreadsheet, '*tsv*'):
+            metadata_df = pd.read_csv(self.spreadsheet, sep="\t", header=0, encoding= 'ISO-8859-1')
+        elif fnmatch.fnmatch(self.spreadsheet, '*csv*'):
+            metadata_df = pd.read_csv(self.spreadsheet, sep=",", header=0, encoding= 'ISO-8859-1')
         else:
             wildcard = f"{self.spreadsheet}"
-            all_files = [f.path for f in os.scandir(wildcard) if fnmatch.fnmatch(f, '*.xls*')]
+            all_files = [f.path for f in os.scandir(wildcard) if fnmatch.fnmatch(f, '*.xls*') or fnmatch.fnmatch(f, '*.txt*') or fnmatch.fnmatch(f, '*.tsv*') or fnmatch.fnmatch(f, '*.csv*')]
             latest_spreadsheet = max(all_files, key=os.path.getctime)
             if fnmatch.fnmatch(latest_spreadsheet, '*.xls*'):
                 metadata_df = pd.read_excel(latest_spreadsheet, header=0, sheet_name='Sheet1')
+            elif fnmatch.fnmatch(latest_spreadsheet, '*txt*') or fnmatch.fnmatch(latest_spreadsheet, '*tsv*'):
+                metadata_df = pd.read_csv(latest_spreadsheet, sep="\t", header=0, encoding= 'ISO-8859-1')
+            elif fnmatch.fnmatch(latest_spreadsheet, '*csv*'):
+                metadata_df = pd.read_csv(latest_spreadsheet, sep=",", header=0, encoding= 'ISO-8859-1')
 
             else:
                 print(f'you have used an unsupported spreadsheet: {latest_spreadsheet}, please try again')
