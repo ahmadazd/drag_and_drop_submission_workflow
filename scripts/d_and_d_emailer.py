@@ -6,138 +6,117 @@ import os
 import fnmatch
 
 description = """
-TO DO
+This script emails 2 receipts to a specified recipient email address, 1. The Study + Sample metadata submission receipt and 2. The Webin-CLI data file submission receipt
 """
 
 example = """
-Example:
-    TO DO
+Example 1:
+    python3 d_and_d_emailer.py -ld1 /mnt/c/Users/zahra/Desktop/covid_utils_tool_submissions/drag_and_drop_submission_workflow/metadata_out \n 
+    -ld2 /mnt/c/Users/zahra/Desktop/covid_utils_tool_submissions/drag_and_drop_submission_workflow/webin_cli_out -s '###@ebi.ac.uk' -r '###@hotmail.co.uk' -p '###'
 """
 
 
 parser = argparse.ArgumentParser(description=description, epilog=example, formatter_class=RawTextHelpFormatter)
 
 
-parser.add_argument('-ld1', '--logdir_1', help='path to directory where all receipt XML log files are kept', type=str, required=False) # /mnt/c/Users/zahra/Documents/scripts/Python/drag_and_drop_submission_workflow/output/logs
-parser.add_argument('-ld2', '--logdir_2', help='path to directory where Webin-CLI report log file is kept', type=str, required=False) # /mnt/c/Users/zahra/Documents/scripts/Python/drag_and_drop_submission_workflow/files/submissions
+parser.add_argument('-ld1', '--logdir_1', help='path to directory where all receipt XML log files are kept', type=str, required=True) # /mnt/c/Users/zahra/Documents/scripts/Python/drag_and_drop_submission_workflow/output/logs
+parser.add_argument('-ld2', '--logdir_2', help='path to directory where Webin-CLI report log file is kept', type=str, required=True) # /mnt/c/Users/zahra/Documents/scripts/Python/drag_and_drop_submission_workflow/files/submissions
 parser.add_argument('-s', '--sender_email', help='email address of sender', type=str, required=True) # password input is that of sender email
-parser.add_argument('-p', '--password', help='password of the sender email', type=str, required=False) # password
-parser.add_argument('-r', '--rec_email', help='email address of recipient', type=str, required=True) # email will be sent here
+parser.add_argument('-p', '--password', help='password of the sender email', type=str, required=True) # password
+parser.add_argument('-r', '--rec_email', help='email address of recipient', type=str, required=True) # email will be sent to here
 
 args = parser.parse_args()
 
 
-def emailer():
-    # TODO: emailer function
+
+# read latest file, depending on logdir 1 or 2
+# content is different according to 1 or 2
+
+def setup_conn():
+    setup_conn.smtp = smtplib.SMTP("outgoing.ebi.ac.uk", 587)  # according to email client
+    setup_conn.smtp.starttls()  # TLS for security
+    setup_conn.smtp.login(main.sender_email, main.password)
+    print("Login success")
+
+    # return smtp
+    # subject = 'Drag and Drop Submission Status:'  # TODO: specify UUID in subject header?
+
+def fetch_latest(logdir):
+    wildcard = f"{logdir}"
+    files = [f.path for f in os.scandir(wildcard)]  # os.scandir() faster than os.listdir(); but not suitable if dir has subdirs
+    # print(files)
+    latest_file = max(files, key=os.path.getctime)  # key to customise sort order, ctime = most recently changed file
+    # print(latest_file)
+    return latest_file
 
 
-    # Argument variables
-    sender_email = f'{args.sender_email}' # virus-dataflow@ebi.ac.uk? # "z_w_test123@hotmail.com"
-    rec_email = f'{args.rec_email}' # B101nf0rm4t1cs123! # "zahra.w@hotmail.co.uk"
-    if args.password:
-        password = args.password
-    else:
-        password = input(str("Please enter your password: ")) # password of sender email account
-    server = smtplib.SMTP("outgoing.ebi.ac.uk", 587) # EBI host running SMTP server
+def send_email(file, header):
+
+    with open(f'{file}', 'r') as tfile:  # latest metadata submission receipt
+        body = tfile.read()
+        print(tfile.read())
+
+    content = header + '\n\n' + str(body)
+    subject = 'Drag and Drop Submission Status:'  # TODO: specify UUID in subject header?
+    mail_text = 'Subject:' + subject + '\n\n' + content  # to fix 'ascii' codec can't encode character '\xb5' in position 572: ordinal not in range(128) error
+    print(mail_text)
+
+    # mail_text = 'Subject:' + subject + '\n\n' + content  # to fix 'ascii' codec can't encode character '\xb5' in position 572: ordinal not in range(128) error
+    # print(mail_text)
+
+    # Send emails
+    setup_conn.smtp.sendmail(main.sender_email, main.rec_email, mail_text.encode('utf-8'))
+    print("email has been successfully sent to: ", main.rec_email)
 
 
-    # Set up connection
-    try:
-        smtp = smtplib.SMTP("outgoing.ebi.ac.uk", 587) # according to email client
-        smtp.starttls()  # TLS for security
-        smtp.login(sender_email, password)
-        print("Login success")
-        subject = 'Drag and Drop Submission Status:'  # TODO: specify UUID in subject header?
 
-        # Construct emails
-        if args.logdir_1 and args.logdir_1 != 'null':
-            print(args.logdir_1)
-            wildcard= f"{args.logdir_1}"
-            files =[f.path for f in os.scandir(wildcard)]
-            latest_file = max(files, key=os.path.getctime)
-            with open(f'{latest_file}', 'r') as tfile_1:
-                body1 = tfile_1.read()
-                print(tfile_1.read())
-            '''
-            for logf_1 in os.listdir(f'{args.logdir_1}'): #logdir_1 outputs only 1 file (i.e logf) per run, #logdir_2 outputs multiple files (incl. 1 logf) per run
-                with open(f'{args.logdir_1}/{logf_1}', 'r') as tfile_1:
-                    body1 = tfile_1.read()
-                    print(tfile_1.read())
-            '''
+def construct_email(logdir_1, logdir_2):
 
-            # TODO: content text below needs to be laid out better  # TODO: add pass or fail statement to top of email based on txt file contents
-            content = \
+    if logdir_1 or logdir_2:
+
+        if logdir_1 != 'null':
+            latest_file_1 = fetch_latest(logdir_1)
+
+            header_1 = \
                 '-----------------------------------------' \
                 '     Study/Sample submission receipt     ' \
-                '-----------------------------------------' \
-                '\n\n' + str(body1)
+                '-----------------------------------------'
 
-            mail_text = 'Subject:' + subject + '\n\n' + content # to fix 'ascii' codec can't encode character '\xb5' in position 572: ordinal not in range(128) error
-            print(mail_text)
+            send_email(latest_file_1, header_1)
 
-            # Send emails
-            smtp.sendmail(sender_email, rec_email, mail_text.encode('utf-8'))
-            print("email has been successfully sent to: ", rec_email)
 
-        if args.logdir_2 and args.logdir_2 != 'null':
-            wildcard = f"{args.logdir_2}"
-            files = [f.path for f in os.scandir(wildcard)]
-            latest_file = max(files, key=os.path.getctime)
-            with open(f'{latest_file}', 'r') as tfile_2:
-                body2 = tfile_2.read()
-                print(tfile_2.read())
-            '''
-    
-            for logf_2 in os.listdir(f'{args.logdir_2}'):
-                if fnmatch.fnmatch(logf_2, '*log_total*'):
-                    with open(f'{args.logdir_2}/{logf_2}', 'r') as tfile_2:
-                        body2 = tfile_2.read()
-                        print(tfile_2.read())
-            '''
+        if logdir_2 != 'null':
+            latest_file_2 = fetch_latest(logdir_2)
 
-            content = \
+            header_2 = \
                 '-----------------------------------------' \
                 '        Webin-CLI submission receipt     ' \
-                '-----------------------------------------' \
-                '\n\n' + str(body2)
+                '-----------------------------------------' 
 
-            mail_text = 'Subject:' + subject + '\n\n' + content
-            print(mail_text)
-
-            # Send emails
-            smtp.sendmail(sender_email, rec_email, mail_text.encode('utf-8'))
-            print("email has been successfully sent to: ", rec_email)
-
-    except Exception as e:
-        print(f'\nERROR with sending emails: {e}\n Verify that the SMTP settings are correct')
-
+            send_email(latest_file_2,header_2)
 
 
 def main():
-    emailer()
+
+    # Argument variables
+    main.sender_email = f'{args.sender_email}' # email being sent from
+    main.rec_email = f'{args.rec_email}' # email being sent to
+    main.password = args.password
+    print("logdir one is ", args.logdir_1)
+    print("logdir two is ", args.logdir_2)
+
+    try:
+        # Set up connection
+        setup_conn()
+
+        # Construct + send email for metadata receipt & Webin-CLI receipt
+        construct_email(args.logdir_1,args.logdir_2)
+
+    except Exception as e:
+        print(f'\nERROR with sending emails: {e}\n')
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     main()
 
-
-
-#------
-# Construct message
-# def build_email(study_sample_dir, webin_dir): #accepts 2 log_dir arguments
-#     subject = 'Drag and Drop Submission Status:'  # TODO: specify UUID in subject header?
-#
-#     for logf_1, logf_2 in zip(os.listdir(study_sample_dir), os.listdir(webin_dir)):
-#         if webin_dir:
-#             if fnmatch.fnmatch(logf_2, '*log_total*'):
-#                     with open(f'{webin_dir}/{logf_2}', 'r') as webin_log:
-#                         body = webin_log.read()
-#                         print(webin_log.read())
-#         elif study_sample_dir:
-#             with open(f'{study_sample_dir}/{logf_1}', 'r') as study_sample_log:
-#                 body = study_sample_log.read()
-#                 print(study_sample_log.read())
-#     return
-#
-# build_email(f'{args.logdir_1}', f'{args.logdir_2}')
 
