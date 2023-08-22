@@ -247,7 +247,10 @@ def study_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_a
         study_df_1 = metadata
         if 'study_accession' not in study_df_1:
             study_df_1['study_accession'] = None
-        study_acc_df = study_df_1[['study_accession','study_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='study_alias', how='inner') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align studies positions relative to the samples and experiment/analysis without filling the NA's
+        if experiment_OR_analysis:
+            study_acc_df = study_df_1[['study_accession','study_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='study_alias', how='inner') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align studies positions relative to the samples and experiment/analysis without filling the NA's
+        else:
+            study_acc_df = study_df_1[['study_accession','study_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias']], on='study_alias', how='inner') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align studies positions relative to the samples and experiment/analysis without filling the NA's
         return study_acc_df
 
 
@@ -278,7 +281,10 @@ def sample_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_
         sample_df_1 = metadata
         if 'sample_accession' not in sample_df_1:
             sample_df_1['sample_accession'] = None
-        sample_acc_df = sample_df_1[['sample_accession','sample_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
+        if experiment_OR_analysis:
+            sample_acc_df = sample_df_1[['sample_accession','sample_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
+        else:
+            sample_acc_df = sample_df_1[['sample_accession','sample_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias']], on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
         return sample_acc_df
 
     if experiment_OR_analysis == None: # there is no need to submit experiment or analysis, thus no need for experimental spreadsheet ( only samples needs to be submitted)
@@ -368,7 +374,13 @@ def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analy
     if 'study_accession' not in metadata_study: # if all the studies needs to be submitted
         studies_to_be_submitted_df = metadata_study.drop_duplicates(subset=['study_alias'])
         study_acc_df = study_acc_not_in_spreadsheet(spreadsheet_original, studies_to_be_submitted_df, experiment_OR_analysis)# submit the study xml and fetch and parse the submission reciept
-        study_acc_df = study_acc_df.merge(spreadsheet_original[['study_alias','sample_alias', experiment_OR_analysis]], on = ['study_alias','sample_alias', experiment_OR_analysis], how='right')
+        if experiment_OR_analysis:
+            study_acc_df = study_acc_df.merge(spreadsheet_original[['study_alias','sample_alias', experiment_OR_analysis]], on = ['study_alias','sample_alias', experiment_OR_analysis], how='right')
+        else:
+            study_acc_df = study_acc_df.merge(
+                spreadsheet_original[['study_alias', 'sample_alias']],
+                on=['study_alias', 'sample_alias'], how='right')
+
 
         '''This block in case there at least one study accession been mentioned'''
 
@@ -442,7 +454,7 @@ def main():
     '''
     This block will run only if there is an experimental/analysis part filled in the spreadsheet
     '''
-    if not pd.isna(spreadsheet_original['experiment_name']).all() or not pd.isna(spreadsheet_original['assemblyname']).all():  # at least the experiment (runs) or the analysis (assemblies) metadata needs for submission
+    if not pd.isna(spreadsheet_original['experiment_name']).all() or 'assemblyname' in spreadsheet_original:  # at least the experiment (runs) or the analysis (assemblies) metadata needs for submission
         if not pd.isna(spreadsheet_original['experiment_name']).all():  # contains experiment (runs) metadata
             experiment_OR_analysis = 'experiment_name'  # reference for experiment data
         else:  # contains analysis data only
