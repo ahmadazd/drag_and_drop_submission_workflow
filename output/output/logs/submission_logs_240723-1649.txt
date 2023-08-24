@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-24T16:49:22.303+01:00" submissionFile="submission.xml" success="true">
+     <SAMPLE accession="ERS16165697" alias="SARS Sample 1" status="PRIVATE">
+          <EXT_ID accession="SAMEA130711952" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16165698" alias="SARS Sample 2" status="PRIVATE">
+          <EXT_ID accession="SAMEA130711953" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16165699" alias="SARS Sample 3" status="PRIVATE">
+          <EXT_ID accession="SAMEA130711954" type="biosample"/>
+     </SAMPLE>
+     <SUBMISSION accession="ERA25618132" alias="SUBMISSION-24-07-2023-16:49:21:605"/>
+     <MESSAGES>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT>

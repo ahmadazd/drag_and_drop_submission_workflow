@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: ena-drag-and-drop-submission-tool
+Version: 0.0.0
+Summary: SARS-CoV-2 Drag and Drop submission project -- pipelines to automate the drag and drop SARS-CoV-2 submission
+Author-email: Ahmad Zyoud <azyoud@ebi.ac.uk>, Zhara Waheed <zahra@ebi.ac.uk>
+License: Apache License 2.0
+Keywords: SARS-CoV-2 submission,ENA,pathogens,automation
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown

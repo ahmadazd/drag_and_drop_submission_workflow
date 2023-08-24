@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-08-17T10:18:38.102+01:00" submissionFile="submission.xml" success="true">
+     <SAMPLE accession="ERS16266656" alias="4" status="PRIVATE">
+          <EXT_ID accession="SAMEA130717838" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16266657" alias="5" status="PRIVATE">
+          <EXT_ID accession="SAMEA130717839" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16266658" alias="6" status="PRIVATE">
+          <EXT_ID accession="SAMEA130717840" type="biosample"/>
+     </SAMPLE>
+     <SUBMISSION accession="ERA26866109" alias="SUBMISSION-17-08-2023-10:18:35:880"/>
+     <MESSAGES>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT><?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-08-17T10:18:38.954+01:00" submissionFile="submission_2023-01-01.xml" success="true">
+     <STUDY accession="ERP150369" alias="SARS-Co2V4-2-C0S1IC1" status="PRIVATE" holdUntilDate="2023-01-01Z">
+          <EXT_ID accession="PRJEB65249" type="Project"/>
+     </STUDY>
+     <SUBMISSION accession="ERA26866110" alias="SUBMISSION-17-08-2023-10:18:38:633"/>
+     <MESSAGES>
+          <INFO>All objects in this submission are set to private status (HOLD).</INFO>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+     <ACTIONS>HOLD</ACTIONS>
+</RECEIPT>

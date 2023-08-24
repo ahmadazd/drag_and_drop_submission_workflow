@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-08-17T10:24:27.168+01:00" submissionFile="submission.xml" success="false">
+     <SUBMISSION alias="SUBMISSION-17-08-2023-10:24:27:122"/>
+     <MESSAGES>
+          <ERROR>In sample, alias: "10". Same alias "10" is used in more than once within the submission.</ERROR>
+          <ERROR>In sample, alias: "10". Same alias "10" is used in more than once within the submission.</ERROR>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT><?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-08-17T10:24:27.658+01:00" submissionFile="submission_2023-01-01.xml" success="true">
+     <STUDY accession="ERP150370" alias="SARS-Co2V4-2-C0S1IC11" status="PRIVATE" holdUntilDate="2023-01-01Z">
+          <EXT_ID accession="PRJEB65250" type="Project"/>
+     </STUDY>
+     <SUBMISSION accession="ERA26866111" alias="SUBMISSION-17-08-2023-10:24:27:586"/>
+     <MESSAGES>
+          <INFO>All objects in this submission are set to private status (HOLD).</INFO>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+     <ACTIONS>HOLD</ACTIONS>
+</RECEIPT>

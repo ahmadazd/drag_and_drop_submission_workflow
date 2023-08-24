@@ -2,6 +2,8 @@
 
 nextflow.enable.dsl=2 
 //assigner_dir = "/scratch"
+params.metadata_log = '/'
+params.webinCli_log = '/'
 
 process EMAILER {
 	tag "emailer"                  
@@ -10,9 +12,11 @@ process EMAILER {
 	//publishDir "/temp", mode: 'copy' 
 
 input:
-    val emailPass
-    path config
-    path log_dir
+	path metadata_log
+	path webinCli_log
+	val sender_email
+	val rec_email
+	val password
 
 output:
 	stdout
@@ -23,11 +27,11 @@ output:
 
 script:
  """
- emailer --emailPass $emailPass --config $config --log $log_dir
+	emailer --logdir_1 $metadata_log --logdir_2 $webinCli_log --sender_email $sender_email --rec_email $rec_email --password $password
  """
  }
  
  
 workflow {
-  EMAILER_CH = EMAILER(params.emailPass, params.config, params.log_dir)
+  EMAILER_CH = EMAILER(params.metadata_log, params.webinCli_log, params.sender_email, params.rec_email, params.password)
 }

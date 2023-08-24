@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-28T16:24:49.777+01:00" submissionFile="submission.xml" success="true">
+     <SAMPLE accession="ERS16199559" alias="SARS Sample 100" status="PRIVATE">
+          <EXT_ID accession="SAMEA130713420" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16199560" alias="SARS Sample 101" status="PRIVATE">
+          <EXT_ID accession="SAMEA130713421" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16199561" alias="SARS Sample 102" status="PRIVATE">
+          <EXT_ID accession="SAMEA130713422" type="biosample"/>
+     </SAMPLE>
+     <SUBMISSION accession="ERA25812171" alias="SUBMISSION-28-07-2023-16:24:49:486"/>
+     <MESSAGES>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT><?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-28T16:24:50.428+01:00" submissionFile="submission.xml" success="true">
+     <STUDY accession="ERP149832" alias="workshop_project_10" status="PRIVATE" holdUntilDate="2025-07-28+01:00">
+          <EXT_ID accession="PRJEB64644" type="Project"/>
+     </STUDY>
+     <SUBMISSION accession="ERA25812172" alias="SUBMISSION-28-07-2023-16:24:50:399"/>
+     <MESSAGES>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT>

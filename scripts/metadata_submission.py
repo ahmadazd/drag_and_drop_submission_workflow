@@ -161,6 +161,8 @@ def submission(metadata_type, study_df = None):
 
 
         else: #in case there is no release date
+            Generate_xml(args.action, args.output).study_xml_generator(
+                study_df)  # generate the study xml for all the studies in a single xml
             submission = Generate_xml(args.action, args.output).submission_xml_generator() # generate study xml
             submission_output = submission_command(metadata_type) # submit and generate the submission xml without a hold date
             return submission_output
@@ -236,13 +238,20 @@ def study_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_a
      :param experiment_OR_analysis: experiment_name or assemblyname, to flag if its analysis spreadsheet or experiment spreadsheet
      :returns the studies accession and alias lists as a dataframe after submission
      """
-
     study_submission = submission('study', metadata) # submit the study xml and return the output
     study_xml_receipt = fetching_receipt(study_submission)  # fetch the study xml reciept
 
     if study_xml_receipt.findAll(success="false"):  # if the submission failed
         print("Study Submission Has Failed")
-        exit(1)
+        #exit(1)
+        study_df_1 = metadata
+        if 'study_accession' not in study_df_1:
+            study_df_1['study_accession'] = None
+        if experiment_OR_analysis:
+            study_acc_df = study_df_1[['study_accession','study_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='study_alias', how='inner') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align studies positions relative to the samples and experiment/analysis without filling the NA's
+        else:
+            study_acc_df = study_df_1[['study_accession','study_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias']], on='study_alias', how='inner') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align studies positions relative to the samples and experiment/analysis without filling the NA's
+        return study_acc_df
 
 
     if experiment_OR_analysis == None: #there is no experiment or analyis needs to be submitted
@@ -256,7 +265,7 @@ def study_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_a
         return study_acc_df
 
 
-def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis = None):
+def sample_acc_not_in_spreadsheet(spreadsheet_original, metadata, experiment_OR_analysis = None):
     """
         parse and navigate the sample metadata that needs to be submitted
          :param spreadsheet_original: the full intact (partially trimmed) ERC000033 spreadsheet
@@ -268,7 +277,16 @@ def sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis =
     sample_xml_receipt = fetching_receipt(sample_submission)  # fetch the xml submission receipt
     if sample_xml_receipt.findAll(success="false"):  # if the submission failed
         print("Samples Submission have Failed")
-        exit(1)
+        #exit(1)
+        sample_df_1 = metadata
+        if 'sample_accession' not in sample_df_1:
+            sample_df_1['sample_accession'] = None
+        if experiment_OR_analysis:
+            sample_acc_df = sample_df_1[['sample_accession','sample_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias', experiment_OR_analysis]], on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
+        else:
+            sample_acc_df = sample_df_1[['sample_accession','sample_alias']].merge(spreadsheet_original[['study_alias', 'sample_alias']], on='sample_alias', how='left').fillna(method='ffill') # merge the submitted accessions and alias with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
+        return sample_acc_df
+
     if experiment_OR_analysis == None: # there is no need to submit experiment or analysis, thus no need for experimental spreadsheet ( only samples needs to be submitted)
         return sample_submission
 
@@ -293,7 +311,7 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
     if 'sample_accession' not in metadata[1]: # all sample metadata needs to be submitted
         sample_df = TrimmingSpreadsheet(metadata[1]).trimming_the_spreadsheet(metadata[1], 'sample')  # retrim the sample metadata
         sample_xml = Generate_xml(args.action, args.output).sample_xml_generator(sample_df)  # generate sample xml
-        sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original, experiment_OR_analysis) #direct the metadata into submission
+        sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original,metadata[1], experiment_OR_analysis) #direct the metadata into submission
         return sample_acc_df
 
 
@@ -318,12 +336,13 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
                 'sample_accession', axis=1) # get the rest of the metadata for the samples that need submission
             sample_df = TrimmingSpreadsheet(samples_without_acc_df).trimming_the_spreadsheet(samples_without_acc_df,'sample') #retrim the sample metadata
             sample_xml = Generate_xml(args.action, args.output).sample_xml_generator(sample_df) #generate sample xml
-            sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original) # submit sample xml
+            sample_acc_df = sample_acc_not_in_spreadsheet(spreadsheet_original, metadata[1]) # submit sample xml
             return sample_acc_df #return sample receipt
 
 
         else: # there is experiment/ analysis metadata to be submitted
             samples_with_acc_df = pd.DataFrame(samples_with_acc, columns=['sample_accession']) # collect sample accession that do not need to be submitted in dataframe
+            samples_without_acc_df = samples_without_acc_df.dropna(axis=1)
             if samples_without_acc_df.empty: # in case there is no samples to be submitted
                 sample_acc_df = samples_with_acc_df.merge(spreadsheet_original[['study_alias', 'sample_accession', 'sample_alias', experiment_OR_analysis]],
                                           on='sample_accession', how='left')#.fillna(method='ffill') # merge the sample accessions with the reference spreadsheet ( original) to align samples positions relative to the study and experiment/analysis and refill the NA's
@@ -355,14 +374,19 @@ def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analy
     if 'study_accession' not in metadata_study: # if all the studies needs to be submitted
         studies_to_be_submitted_df = metadata_study.drop_duplicates(subset=['study_alias'])
         study_acc_df = study_acc_not_in_spreadsheet(spreadsheet_original, studies_to_be_submitted_df, experiment_OR_analysis)# submit the study xml and fetch and parse the submission reciept
-        study_acc_df = study_acc_df.merge(spreadsheet_original[['study_alias','sample_alias', experiment_OR_analysis]], on = ['study_alias','sample_alias', experiment_OR_analysis], how='right')
+        if experiment_OR_analysis:
+            study_acc_df = study_acc_df.merge(spreadsheet_original[['study_alias','sample_alias', experiment_OR_analysis]], on = ['study_alias','sample_alias', experiment_OR_analysis], how='right')
+        else:
+            study_acc_df = study_acc_df.merge(
+                spreadsheet_original[['study_alias', 'sample_alias']],
+                on=['study_alias', 'sample_alias'], how='right')
+
 
         '''This block in case there at least one study accession been mentioned'''
 
     else: #not all the studies needs to submitted
         if not pd.isna(metadata_study['study_accession']).any(): #if all the studies dont need submission
             study_acc_df = metadata_study['study_accession'].to_frame(name='study_accession') #collect the accession in a dataframe
-            print(study_acc_df)
 
 
         else: #if some of the studies needs to be submitted
@@ -425,11 +449,12 @@ def main():
     """The main section"""
 
     spreadsheet_original = main_spreadsheet()  # capture the spreadsheet for reference
+    create_outdir(args.output) # create the output directory
 
     '''
     This block will run only if there is an experimental/analysis part filled in the spreadsheet
     '''
-    if not pd.isna(spreadsheet_original['experiment_name']).all() or not pd.isna(spreadsheet_original['assemblyname']).all():  # at least the experiment (runs) or the analysis (assemblies) metadata needs for submission
+    if not pd.isna(spreadsheet_original['experiment_name']).all() or 'assemblyname' in spreadsheet_original:  # at least the experiment (runs) or the analysis (assemblies) metadata needs for submission
         if not pd.isna(spreadsheet_original['experiment_name']).all():  # contains experiment (runs) metadata
             experiment_OR_analysis = 'experiment_name'  # reference for experiment data
         else:  # contains analysis data only
@@ -443,6 +468,7 @@ def main():
         '''
 
         sample_acc_df = samples_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis)  # parse and submit the sample metadata if needed.
+
 
         '''
         This block for study submissions if exist or accession arrangment which will submit the studies if needed and merge the the study metadata with the sample metadata the been produced from the block above
@@ -476,11 +502,17 @@ def main():
         '''
 
         experimental_spreadsheet = metadata_acc.merge(experimental_spreadsheet, on=experiment_OR_analysis,how='right')  # concat the study+sample metadata with the experiment/analysis metadata
-        experimental_spreadsheet = experimental_spreadsheet.drop(['study_alias', 'sample_alias', experiment_OR_analysis], axis=1)  # remove the aliases
-        experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
-        experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet
-        experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
-                                          index=False)  # print out the experiment spreadsheet
+        experimental_spreadsheet = experimental_spreadsheet.drop(['study_alias', 'sample_alias'], axis=1)  # remove the aliases
+        if os.path.exists(f"{args.output}/experimental_spreadsheet.xlsx"):
+            os.remove(f"{args.output}/experimental_spreadsheet.xlsx")
+        if not pd.isna(experimental_spreadsheet['study_accession']).any() and not pd.isna(experimental_spreadsheet['sample_accession']).any():
+            experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
+            experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet
+            if experiment_OR_analysis == 'assemblyname':
+                experimental_spreadsheet["chromosome_list"] = f'{experimental_spreadsheet["fasta/flatfile name"][0].strip("*.fasta.gz")}_chromosomelist.txt.gz'
+
+            experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
+                                              index=False)  # print out the experiment spreadsheet
 
 
 
@@ -490,7 +522,7 @@ def main():
     else:  # if experiment and analysis are not needed to be submitted
         metadata = study_sample_xml_generation(
             args.file)  # fetch the study and samples metadata separately using uploaded again
-        study_submission = studies_final_arrangment(spreadsheet_original,metadata)  # arrange the study metadata format and generate the xml and submit, return the submission output
+        study_submission = studies_final_arrangment(spreadsheet_original, metadata)  # arrange the study metadata format and generate the xml and submit, return the submission output
         sample_submission = samples_final_arrangment(spreadsheet_original, metadata)  # arrange the sample metadata format and generate the xml and submit, return the submission output
 
 

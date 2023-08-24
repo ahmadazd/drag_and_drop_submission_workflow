@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-25T10:46:45.862+01:00" submissionFile="submission.xml" success="false">
+     <SAMPLE alias="SARS Sample 1" status="PRIVATE"/>
+     <SAMPLE alias="SARS Sample 2" status="PRIVATE"/>
+     <SAMPLE alias="SARS Sample 3" status="PRIVATE"/>
+     <SUBMISSION alias="SUBMISSION-25-07-2023-10:46:45:826"/>
+     <MESSAGES>
+          <ERROR>In sample, alias: "SARS Sample 1". The object being added already exists in the submission account with accession: "ERS16173245".</ERROR>
+          <ERROR>In sample, alias: "SARS Sample 2". The object being added already exists in the submission account with accession: "ERS16173246".</ERROR>
+          <ERROR>In sample, alias: "SARS Sample 3". The object being added already exists in the submission account with accession: "ERS16173247".</ERROR>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT><?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-25T10:46:46.437+01:00" submissionFile="submission.xml" success="false">
+     <STUDY alias="workshop_project" status="PRIVATE" holdUntilDate="2025-07-25+01:00"/>
+     <SUBMISSION alias="SUBMISSION-25-07-2023-10:46:46:429"/>
+     <MESSAGES>
+          <ERROR>In study, alias: "workshop_project". The object being added already exists in the submission account with accession: "ERP149748".</ERROR>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT>

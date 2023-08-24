@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-20T14:18:19.011+01:00" submissionFile="submission.xml" success="false">
+     <SAMPLE alias="R1000" status="PRIVATE"/>
+     <SAMPLE alias="R1002" status="PRIVATE"/>
+     <SUBMISSION alias="SUBMISSION-20-07-2023-14:18:18:969"/>
+     <MESSAGES>
+          <ERROR>In sample, alias: "R1000". The object being added already exists in the submission account with accession: "ERS16094074".</ERROR>
+          <ERROR>In sample, alias: "R1002". The object being added already exists in the submission account with accession: "ERS16094075".</ERROR>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT>

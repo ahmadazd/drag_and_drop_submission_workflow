@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2023-07-20T13:30:28.515+01:00" submissionFile="submission.xml" success="true">
+     <SAMPLE accession="ERS16094074" alias="R1000" status="PRIVATE">
+          <EXT_ID accession="SAMEA130711606" type="biosample"/>
+     </SAMPLE>
+     <SAMPLE accession="ERS16094075" alias="R1002" status="PRIVATE">
+          <EXT_ID accession="SAMEA130711607" type="biosample"/>
+     </SAMPLE>
+     <SUBMISSION accession="ERA25399853" alias="SUBMISSION-20-07-2023-13:30:28:162"/>
+     <MESSAGES>
+          <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+     </MESSAGES>
+     <ACTIONS>ADD</ACTIONS>
+</RECEIPT>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<STUDY_SET>
+  <STUDY alias="test1">
+    <DESCRIPTOR>
+      <STUDY_TITLE>SARS-CoV-2 phylogeny paper</STUDY_TITLE>
+      <STUDY_TYPE existing_study_type="Other" />
+      <STUDY_ABSTRACT>SARS-CoV-2 phylogeny paper</STUDY_ABSTRACT>
+      <CENTER_PROJECT_NAME>SARS-CoV-2 phylogeny paper</CENTER_PROJECT_NAME>
+    </DESCRIPTOR>
+    <STUDY_ATTRIBUTES>
+      <STUDY_ATTRIBUTE>
+        <TAG>release_date</TAG>
+        <VALUE>NaT</VALUE>
+      </STUDY_ATTRIBUTE>
+      <STUDY_ATTRIBUTE>
+        <TAG>submission_tool</TAG>
+        <VALUE>drag and drop uploader tool</VALUE>
+      </STUDY_ATTRIBUTE>
+    </STUDY_ATTRIBUTES>
+  </STUDY>
+</STUDY_SET>
