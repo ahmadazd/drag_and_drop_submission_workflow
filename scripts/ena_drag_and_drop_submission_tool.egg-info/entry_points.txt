@@ -1,4 +1,0 @@
-[console_scripts]
-bulk_webincli = bulk_webincli:main
-emailer = d_and_d_emailer:main
-metadata_submission = metadata_submission:main

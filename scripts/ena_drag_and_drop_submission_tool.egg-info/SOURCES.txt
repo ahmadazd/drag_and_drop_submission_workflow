@@ -1,7 +1,0 @@
-pyproject.toml
-scripts/ena_drag_and_drop_submission_tool.egg-info/PKG-INFO
-scripts/ena_drag_and_drop_submission_tool.egg-info/SOURCES.txt
-scripts/ena_drag_and_drop_submission_tool.egg-info/dependency_links.txt
-scripts/ena_drag_and_drop_submission_tool.egg-info/entry_points.txt
-scripts/ena_drag_and_drop_submission_tool.egg-info/requires.txt
-scripts/ena_drag_and_drop_submission_tool.egg-info/top_level.txt
