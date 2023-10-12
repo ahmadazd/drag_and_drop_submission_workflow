@@ -15,7 +15,7 @@ class Chr_list_generator:
                     first_line = codecs.decode(f.readline()).strip('>').strip('\n')
                     print(first_line)
                 with gzip.open(f'{self.output}/{file.strip("*.fasta.gz*")}_chromosomelist.txt.gz', 'wb') as f:
-                    string = f'{first_line}\t1\tMonopartite'
+                    string = f'{first_line.strip()}\t{int(1)}\tMonopartite'
                     f.write(codecs.encode(string))
 
 
