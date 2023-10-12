@@ -153,7 +153,8 @@ def submission(metadata_type, study_df = None):
 
 
             else: # in case there is only one unique release date
-                release_date_formatted = datetime.strptime(str(release_date_list[0]).rstrip("T00:00:00.000000000"),'%Y-%m-%d').strftime('%Y-%m-%d')
+                print(str(release_date_list[0]))
+                release_date_formatted = datetime.strptime(str(release_date_list[0]).rstrip("T00:00:00.000000000").strip(),'%Y-%m-%d').strftime('%Y-%m-%d')
                 Generate_xml(args.action, args.output).study_xml_generator(study_df)  # generate the study xml for all the studies in a single xml
                 submission = Generate_xml(args.action, args.output).submission_xml_generator(release_date_formatted)  # generate the submission xml for each unique release date
                 submission_output = submission_command(metadata_type,release_date_formatted) #submit the study xml using the single release date
@@ -442,6 +443,9 @@ def studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analy
 
     return study_acc_df
 
+def chromosome_list(value):
+    new_value = f'{value.strip("*.fasta.gz")}_chromosomelist.txt.gz'
+    return new_value
 
 
 def main():
@@ -509,7 +513,7 @@ def main():
             experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
             experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet
             if experiment_OR_analysis == 'assemblyname':
-                experimental_spreadsheet["chromosome_list"] = f'{experimental_spreadsheet["fasta/flatfile name"][0].strip("*.fasta.gz")}_chromosomelist.txt.gz'
+                experimental_spreadsheet["chromosome_list"] = experimental_spreadsheet["fasta/flatfile name"].apply(chromosome_list)
 
             experimental_spreadsheet.to_excel(f"{args.output}/experimental_spreadsheet.xlsx",
                                               index=False)  # print out the experiment spreadsheet
