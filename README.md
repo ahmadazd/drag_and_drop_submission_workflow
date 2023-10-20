@@ -16,8 +16,9 @@ webin-cli directory : contains the webin_cli software
 
 spreadsheets directory : contains the metadata spreadsheet (contains two template spreadsheets)
 
-### NOTE: before running the Nextflow workflow run the following command (the first time only)
+### NOTE: before running the Nextflow workflow run the following commands:
 
 `pip install -e .`
 
+`mkdir files spreadsheets` (to create two empty directories, files and spreadsheets. Please then move data files and the metadata spreadsheet to the appropriate directory)
 
