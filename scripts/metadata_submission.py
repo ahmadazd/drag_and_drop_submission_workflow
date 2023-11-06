@@ -198,7 +198,7 @@ def main_spreadsheet():
      :returns trimmed but fully intact spreadsheet as a dataframe
      """
 
-    spreadsheet_original = TrimmingSpreadsheet(args.file).spreadsheet_upload()
+    spreadsheet_original = TrimmingSpreadsheet(args.file).spreadsheet_upload()[0]
     spreadsheet_original = spreadsheet_original.drop(spreadsheet_original.columns[0], axis=1).drop([2, 1, 3], axis=0)
     spreadsheet_original = spreadsheet_original.rename(columns=spreadsheet_original.iloc[0]).drop(spreadsheet_original.index[0]).reset_index(drop=True)
     return spreadsheet_original
@@ -448,6 +448,28 @@ def chromosome_list(value):
     return new_value
 
 
+def create_new_spreadsheet_with_Accession(spreadsheet_original,metadata_acc, experiment_OR_analysis ):
+    spreadsheet_original_modified = spreadsheet_original.drop(['study_accession', 'sample_accession'], axis=1)
+    updated_original_spreadsheet = pd.merge(spreadsheet_original_modified, metadata_acc,
+                                            on=[experiment_OR_analysis, "study_alias", "sample_alias"],
+                                            how='left')  # concat the study+sample metadata with the original spreadsheet
+    original_columns = list(spreadsheet_original.columns)
+    updated_original_spreadsheet = updated_original_spreadsheet.reindex(columns=original_columns)
+    spreadsheet_NoTrimming = TrimmingSpreadsheet(args.file).spreadsheet_upload()[0]
+    latest_spreadsheet_path = TrimmingSpreadsheet(args.file).spreadsheet_upload()[1]
+    spreadsheet_NoTrimming_columns = list(spreadsheet_NoTrimming.columns)
+    top_columns = spreadsheet_NoTrimming.iloc[0:4]
+    first_column = spreadsheet_NoTrimming['Unnamed: 0'].drop([2, 1, 3], axis=0)
+    updated_original_spreadsheet.insert(0, 'Unnamed: 0', first_column)
+    updated_original_spreadsheet.columns = spreadsheet_NoTrimming_columns
+    updated_original_spreadsheet = pd.concat([top_columns, updated_original_spreadsheet]).reset_index(drop=True)
+    updated_original_spreadsheet.to_excel(
+        f"{latest_spreadsheet_path.rstrip('withAccessions.xlsx').rstrip('xls').rstrip('xlsx').rstrip('txt').rstrip('csv')}.withAccessions.xlsx",
+        index=False)  # print out the the modified spreadsheet
+
+
+
+
 def main():
 
     """The main section"""
@@ -506,6 +528,10 @@ def main():
         '''
 
         experimental_spreadsheet = metadata_acc.merge(experimental_spreadsheet, on=experiment_OR_analysis,how='right')  # concat the study+sample metadata with the experiment/analysis metadata
+
+        create_new_spreadsheet_with_Accession(spreadsheet_original, metadata_acc,experiment_OR_analysis)
+
+
         experimental_spreadsheet = experimental_spreadsheet.drop(['study_alias', 'sample_alias'], axis=1)  # remove the aliases
         if os.path.exists(f"{args.output}/experimental_spreadsheet.xlsx"):
             os.remove(f"{args.output}/experimental_spreadsheet.xlsx")
