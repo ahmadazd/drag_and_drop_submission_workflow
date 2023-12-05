@@ -5,8 +5,12 @@ metadata_submission command to run standalone
 bulk_webincli command to run standalone
 ` python3 bulk_webincli.py -s <spreadsheet_dir> -d <files_dir> -m <mode(submit/validate)> -u <Webin-####> -p <'password'> -g <context> -w <webin_cli software directory>`
 
-nextflow pipeline command to run
-`nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf --spreadsheet <absolute spreadsheet_dir.xlsx> --webin_account <Webin-####> --webin_password <'password'> --context <context(reads/genome..etc)> --mode <mode(submit/validate)>`
+nextflow "standalone" pipeline command to run
+`nextflow run main.nf  --webin_account <Webin-####> --webin_password <'password'> --context <context(reads/genome..etc)> --mode <mode(submit/validate)> --environment <test/prod>`
+
+To use the pipeline conda environment, add the parameter : `-profile conda` 
+
+to use the docker/singularity container, add the parameter : `with-docker [docker image]` or `-with-singularity [singularity/docker image file]`
 
 files directory: contains the files to be submitted (contains four fastq files for testing)
 
@@ -17,8 +21,6 @@ webin-cli directory : contains the webin_cli software
 spreadsheets directory : contains the metadata spreadsheet (contains two template spreadsheets)
 
 ### NOTE: before running the Nextflow workflow run the following commands:
-
-`pip install -e .`
 
 `mkdir files spreadsheets` (to create two empty directories, files and spreadsheets. Please then move data files and the metadata spreadsheet to the appropriate directory)
 
