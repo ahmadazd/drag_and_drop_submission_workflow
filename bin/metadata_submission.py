@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
 
 # Copyright [2020] EMBL-European Bioinformatics Institute
 #
@@ -81,6 +81,8 @@ def submission_command(metadata_type, release_date=None, study_release_date=None
      """
     archive_dir = create_outdir(f'{args.output}/xml_archive') # create the archive folder
     log_dir = create_outdir(f'{args.output}/logs') # create the log folder
+    print(log_dir)
+    print(archive_dir)
     now = datetime.now()
     now_str = now.strftime("%d%m%y-%H%M") # datetime in minutes format
     if args.test is True:  # if there is a test flag
@@ -322,10 +324,10 @@ def samples_final_arrangment(spreadsheet_original,metadata, experiment_OR_analys
         samples_with_acc = []
         samples_without_acc = []
         for index, row in metadata[1].iterrows():
-            if not pd.isna(row[0]):
-                samples_with_acc.append(row[0]) # fetching the accession ready in the spreadsheet ( no need for submission)
+            if not pd.isna(row.iloc[0]):
+                samples_with_acc.append(row.iloc[0]) # fetching the accession ready in the spreadsheet ( no need for submission)
             else:
-                samples_without_acc.append(row[1]) # fetching the alias for the samples that missing accession ( need for submission)
+                samples_without_acc.append(row.iloc[1]) # fetching the alias for the samples that missing accession ( need for submission)
         samples_without_acc_df= pd.DataFrame(samples_without_acc, columns=['sample_alias']) # dataframe for samples that needs accession
 
 
@@ -476,6 +478,12 @@ def main():
 
     spreadsheet_original = main_spreadsheet()  # capture the spreadsheet for reference
     create_outdir(args.output) # create the output directory
+    create_outdir(f'{args.output}/logs')  # create the log folder
+
+    for submission_logs in glob.glob(f'{args.output}/logs/submission_logs_*'):
+        if os.path.exists(submission_logs):
+            create_outdir(f'{args.output}/logs/archived_logs')
+            shutil.move(submission_logs, f'{args.output}/logs/archived_logs/{os.path.basename(submission_logs)}')
 
     '''
     This block will run only if there is an experimental/analysis part filled in the spreadsheet
@@ -511,7 +519,7 @@ def main():
         else:  # some studies needs to be submitted
             if not pd.isna(metadata_study['study_accession']).any():  # all the studies dont need any submission
                 study_acc_df = studies_final_arrangment(spreadsheet_original, metadata, experiment_OR_analysis)  # arrange the studies metadata format
-                metadata_acc = pd.concat([study_acc_df, sample_acc_df], join='outer', axis=1).fillna(method='ffill')  # merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed and fill the NA's
+                metadata_acc = pd.concat([study_acc_df, sample_acc_df], join='outer', axis=1).ffill()  # merge the study dataframe with the sample dataframe after all the metadata that needs to be submitted is processed and fill the NA's
 
 
             else:  # some studies needs to be submitted and some are not
@@ -535,6 +543,8 @@ def main():
         experimental_spreadsheet = experimental_spreadsheet.drop(['study_alias', 'sample_alias'], axis=1)  # remove the aliases
         if os.path.exists(f"{args.output}/experimental_spreadsheet.xlsx"):
             os.remove(f"{args.output}/experimental_spreadsheet.xlsx")
+
+
         if not pd.isna(experimental_spreadsheet['study_accession']).any() and not pd.isna(experimental_spreadsheet['sample_accession']).any():
             experimental_spreadsheet = experimental_spreadsheet.dropna(axis=1, how='all')  # remove the empty columns
             experimental_spreadsheet["submission_tool"] = 'drag and drop uploader tool'  # to inject submission_tool into experimental_spreadsheet

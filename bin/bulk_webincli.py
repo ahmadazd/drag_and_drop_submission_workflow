@@ -1,6 +1,4 @@
-#!/usr/bin/python3
-
-__author__ = "Nadim Rahman, Colman O'Cathail"
+#!/usr/bin/env python3
 
 import argparse, subprocess, sys
 import pandas as pd

@@ -19,7 +19,8 @@ include { BULK_WEBINCLI } from '../modules/bulk_webincli.nf'
 include { EMAILER as METADATA_EMAILER } from '../modules/emailer.nf' //to link the emailer.nf
 include { EMAILER as WEBINCLI_EMAILER } from '../modules/emailer.nf' //to link the emailer.nf
 
-workflow subworkflow { 
+workflow dragDrop_workflow {
+conda = "${projectDir}/package-list.yaml" 
     take:
         spreadsheet
 	    webin_account  
@@ -49,5 +50,5 @@ workflow subworkflow {
 }
 
 workflow {
-    subworkflow(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.files_dir, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.environment)
+    dragDrop_workflow(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.files_dir, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.environment)
 }

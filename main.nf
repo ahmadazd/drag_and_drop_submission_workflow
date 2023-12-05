@@ -84,10 +84,10 @@ assert params.environment.toLowerCase() == 'test' || params.environment.toLowerC
 
 
 // Import modules/subworkflows
-include { subworkflow } from '../../subworkflow/subworkflow.nf'
+include { dragDrop_workflow } from './workflow/dragDrop_workflow.nf'
 
 // Run main workflow
 workflow {
     main:
-    subworkflow(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.files_dir, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.environment)
+    dragDrop_workflow(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.files_dir, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.environment)
 }

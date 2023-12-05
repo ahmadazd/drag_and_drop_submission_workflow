@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 process METADATA_SUBMISSION {
 	tag "metadata_submission"                  
 	label 'default'                
-	publishDir "$output", mode: 'copy' 
+	//publishDir "$output", mode: 'copy' 
 
 input:
 	path spreadsheet
@@ -26,13 +26,13 @@ webin_account_mod = (params.webin_account.minus('su-'))
 
 if ( params.environment.toLowerCase() == 'test') {
 	"""
-	metadata_submission -f $spreadsheet -u $webin_account_mod -p $webin_password -a $action -o $PWD/$output -t
+	metadata_submission.py -f $spreadsheet -u $webin_account_mod -p $webin_password -a $action -o $PWD/$output -t
 	"""
  }
 
  else if (params.environment.toLowerCase() == 'prod' || params.environment.toLowerCase() == 'production') {
 	"""
-	metadata_submission -f $spreadsheet -u $webin_account_mod -p $webin_password -a $action -o $PWD/$output
+	metadata_submission.py -f $spreadsheet -u $webin_account_mod -p $webin_password -a $action -o $PWD/$output
 	"""
  }
 

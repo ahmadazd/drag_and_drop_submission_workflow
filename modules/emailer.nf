@@ -27,7 +27,7 @@ output:
 
 script:
  """
-	emailer --logdir_1 $metadata_log --logdir_2 $webinCli_log --sender_email $sender_email --rec_email $rec_email --password $password
+	d_and_d_emailer.py --logdir_1 $metadata_log --logdir_2 $webinCli_log --sender_email $sender_email --rec_email $rec_email --password $password
  """
  }
  
