@@ -12,6 +12,10 @@ To use the pipeline conda environment, add the parameter : `-profile conda`
 
 to use the docker/singularity container, add the parameter : `with-docker [docker image]` or `-with-singularity [singularity/docker image file]`
 
+Image name : `enacontainers/ena_dragdrop_image`
+
+### NOTE: please make sure to install docker or singularity before using the image.
+
 files directory: contains the files to be submitted (contains four fastq files for testing)
 
 output directory : contains the metadata_submission outputs ((experimental_spreadsheet)) and log files
