@@ -16,7 +16,7 @@ Image name : `enacontainers/ena_dragdrop_image`
 
 ### NOTE: please make sure to install docker or singularity before using the image.
 
-files directory: contains the files to be submitted (contains four fastq files for testing)
+files directory: contains the files to be submitted (contains files for testing)
 
 output directory : contains the metadata_submission outputs ((experimental_spreadsheet)) and log files
 
