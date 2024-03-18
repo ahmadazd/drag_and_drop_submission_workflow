@@ -142,8 +142,8 @@ def md5_handling(md5_contents, filename):
 
 def transfer_check(file):
     with open(f'{file}', 'r') as stdout:
-        total_upload = (stdout.readlines()[-1])  # prints last line of stdout = no. of items in upload area #14 items
-        print("total files uploaded =", total_upload)
+        #total_upload = (stdout.readlines()[-1])  # prints last line of stdout = no. of items in upload area #14 items
+        #print("total files uploaded =", total_upload)
         #
         # total_transfer = len([name for name in os.listdir(main.outdir) if os.path.isfile(os.path.join(main.outdir, name))])  # list no. of files in specified dir
         # total_transfer = str(total_transfer) + " items"

@@ -35,6 +35,7 @@ workflow subworkflow {
         password
         uuid
         transfer_output
+	transfer_flag
         environment
 
 
@@ -43,7 +44,7 @@ workflow subworkflow {
     bulkWebinCli_emailer_ch
 
     main:
-        transfer_integrity_ch = TRANSFER_INTEGRITY(params.uuid, params.transfer_output)
+        transfer_integrity_ch = TRANSFER_INTEGRITY(params.uuid, params.transfer_output, params.transfer_flag)
         metadata_submission_ch = METADATA_SUBMISSION(TRANSFER_INTEGRITY.out.spreadsheet_dir, webin_account, webin_password, action, xml_output, environment)
         bulk_webincli_ch = BULK_WEBINCLI(METADATA_SUBMISSION.out.spreadsheet_log, webin_account, webin_password, context, TRANSFER_INTEGRITY.out.dataFiles_dir, mode, webinCli_dir, environment)
 
@@ -52,5 +53,5 @@ workflow subworkflow {
 }
 
 workflow {
-    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.uuid, params.transfer_output, params.environment)
+    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
 }

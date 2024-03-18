@@ -42,9 +42,15 @@ if (params.transfer_output != "/") {
 	transfer -u $uuid -d -o $PWD/$transfer_output
 	"""
 	}
-	}
+	else if (params.transfer_flag == "/") {
+	"""
+	echo transferring all data to default directory
 
-else {
+	transfer -u $uuid -o $PWD/$transfer_output 
+	"""
+	}
+}
+else if (params.transfer_output = "/") {
 	if (params.transfer_flag == 's') {
 	"""
 	echo transferring spreadsheets only
@@ -62,7 +68,14 @@ else {
 	transfer -u $uuid -d
 	"""
 	}
-	}
+	else if (params.transfer_flag == "/") {
+        """
+        echo transferring all data to default directory
+
+        transfer -u $uuid
+        """
+	}	
+}
 }
 
 workflow {

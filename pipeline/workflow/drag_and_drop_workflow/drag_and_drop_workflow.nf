@@ -29,8 +29,9 @@ params.sender_email = null
 params.rec_email = null
 params.senderEmail_password = null
 params.uuid = null
-params.transfer_output = null
 params.environment = null
+params.transfer_output = "/"
+params.transfer_flag = "/"
 
 
 // Print usage
@@ -88,5 +89,5 @@ include { subworkflow } from '../../subworkflow/subworkflow.nf'
 // Run main workflow
 workflow {
     main:
-    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output, params.environment)
+    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
 }
