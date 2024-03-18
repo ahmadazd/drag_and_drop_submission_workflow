@@ -34,10 +34,7 @@ class TrimmingSpreadsheet:
     General trimming to the metadata in the spreadsheet and save it in a panda dataframe object
     """
     def trimming_the_spreadsheet(self, trimmed_df, metadata):
-        #trimmed_df = df.iloc[3: ,].copy()
-        #trimmed_df = trimmed_df.fillna('not provided')
         trimmed_df["submission_tool"] = 'drag and drop uploader tool' #study #to inject constant into trimmed df
-        #trimmed_df.insert(24,"submission_tool",'drag and drop uploader tool',allow_duplicates=True) #sample
 
 
         if metadata == 'sample':
@@ -59,9 +56,23 @@ class TrimmingSpreadsheet:
     def spreadsheet_upload(self):
         if fnmatch.fnmatch(self.spreadsheet, '*.xls*'):
             metadata_df = pd.read_excel(self.spreadsheet, header=0, sheet_name='Sheet1')
-
+        elif fnmatch.fnmatch(self.spreadsheet, '*txt*') or fnmatch.fnmatch(self.spreadsheet, '*tsv*'):
+            metadata_df = pd.read_csv(self.spreadsheet, sep="\t", header=0, encoding= 'ISO-8859-1')
+        elif fnmatch.fnmatch(self.spreadsheet, '*csv*'):
+            metadata_df = pd.read_csv(self.spreadsheet, sep=",", header=0, encoding= 'ISO-8859-1')
         else:
-            print('you have used an unsupported spreadsheet, please try again')
+            wildcard = f"{self.spreadsheet}"
+            all_files = [f.path for f in os.scandir(wildcard) if fnmatch.fnmatch(f, '*.xls*') or fnmatch.fnmatch(f, '*.txt*') or fnmatch.fnmatch(f, '*.tsv*') or fnmatch.fnmatch(f, '*.csv*')]
+            latest_spreadsheet = max(all_files, key=os.path.getctime)
+            if fnmatch.fnmatch(latest_spreadsheet, '*.xls*'):
+                metadata_df = pd.read_excel(latest_spreadsheet, header=0, sheet_name='Sheet1')
+            elif fnmatch.fnmatch(latest_spreadsheet, '*txt*') or fnmatch.fnmatch(latest_spreadsheet, '*tsv*'):
+                metadata_df = pd.read_csv(latest_spreadsheet, sep="\t", header=0, encoding= 'ISO-8859-1')
+            elif fnmatch.fnmatch(latest_spreadsheet, '*csv*'):
+                metadata_df = pd.read_csv(latest_spreadsheet, sep=",", header=0, encoding= 'ISO-8859-1')
+
+            else:
+                print(f'you have used an unsupported spreadsheet: {latest_spreadsheet}, please try again')
 
         return metadata_df
 
@@ -75,11 +86,8 @@ class TrimmingSpreadsheet:
             studyTrimmed_2_df = studyTrimmed_2_df.drop('study_accession', axis=1)
             StudyTrimmed_Final = self.trimming_the_spreadsheet(studyTrimmed_2_df, 'study')
         else:
-            StudyTrimmed_Final = studyTrimmed_2_df#[['study_accession','study_alias']]#.to_frame(name=['study_accession', 'study_alias'])
+            StudyTrimmed_Final = studyTrimmed_2_df
 
-        #StudyTrimmed_Final= StudyTrimmed_Final.fillna(method='ffill')
-
-        #print(StudyTrimmed_Final)
         try:
             analysis_df = spreadsheet_df.loc[:, 'Isolate Genome Assembly information':'Study']
             analysisTrimmed_df = analysis_df.drop('Study', axis=1).drop([2, 1, 3], axis=0)
@@ -103,7 +111,7 @@ class TrimmingSpreadsheet:
                 sampleTrimmed_2_df = sampleTrimmed_2_df.drop('sample_accession', axis=1)
                 sampleTrimmed_Final = self.trimming_the_spreadsheet(sampleTrimmed_2_df, 'sample')
             else:
-                sampleTrimmed_Final = sampleTrimmed_2_df#[['sample_accession','sample_alias']]#.to_frame(name=['sample_accession', 'sample_alias'])
+                sampleTrimmed_Final = sampleTrimmed_2_df
 
 
 
@@ -117,7 +125,6 @@ class TrimmingSpreadsheet:
                 experimentTrimmed_df = experiment_df.drop([2, 1, 3], axis=0)
                 experimentTrimmedFinal = experimentTrimmed_df.rename(columns=experimentTrimmed_df.iloc[0]).drop(
                     experimentTrimmed_df.index[0]).reset_index(drop=True)
-                #print(experimentTrimmedFinal)
 
 
                 sample_df = spreadsheet_df.loc[:, 'Sample - Mandatory (ERC000033)':'Run/Experiment']
@@ -128,10 +135,7 @@ class TrimmingSpreadsheet:
                     sampleTrimmed_2_df = sampleTrimmed_2_df.drop('sample_accession', axis=1)
                     sampleTrimmed_Final = self.trimming_the_spreadsheet(sampleTrimmed_2_df, 'sample')
                 else:
-                    sampleTrimmed_Final = sampleTrimmed_2_df#[['sample_accession','sample_alias']]#.to_frame(name='sample_accession')
-
-
-                #print(sampleTrimmed_Final)
+                    sampleTrimmed_Final = sampleTrimmed_2_df
 
                 return StudyTrimmed_Final, sampleTrimmed_Final, experimentTrimmedFinal
 

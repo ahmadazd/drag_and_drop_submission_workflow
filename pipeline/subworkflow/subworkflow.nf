@@ -12,37 +12,46 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+nextflow.enable.dsl=2 
 // Import modules/subworkflows
+include { TRANSFER_INTEGRITY } from '../modules/transfer_integrity.nf' 
 include { METADATA_SUBMISSION } from '../modules/metadata_submission.nf'
 include { BULK_WEBINCLI } from '../modules/bulk_webincli.nf'
-//include { EMAILER } from '../modules/emailer.nf' //to link the emailer.nf
+include { EMAILER as METADATA_EMAILER } from '../modules/emailer.nf' //to link the emailer.nf
+include { EMAILER as WEBINCLI_EMAILER } from '../modules/emailer.nf' //to link the emailer.nf
 
-workflow subworkflow { //emailer.nf parameters needs to be added here
+
+workflow subworkflow { 
     take:
-        spreadsheet
 	    webin_account  
 	    webin_password
         action
         xml_output
         context
-        files_dir
         mode
         webinCli_dir
+        sender_email
+        rec_email
+        password
+        uuid
+        transfer_output
+	transfer_flag
+        environment
+
 
     emit:
-    metadata_submission_ch
-    bulk_webincli_ch
-    //metadata_emailer_ch
-    //bulkWebinCli_emailer_ch
+    metadata_emailer_ch
+    bulkWebinCli_emailer_ch
 
     main:
-        metadata_submission_ch = METADATA_SUBMISSION(spreadsheet, webin_account, webin_password, action, xml_output).view()
-        bulk_webincli_ch = BULK_WEBINCLI(metadata_submission_ch, webin_account, webin_password, context, files_dir, mode, webinCli_dir).view()
-        //metadata_emailer_ch = EMAILER(emailPass, config, metadata_submission_ch[1])//This for the emailer process to link it with metadata_submission process (check if the [1] index works in this case)
-        //bulkWebinCli_emailer_ch = EMAILER(emailPass, config, bulk_webincli_ch[1])// This for the emailer process to link it with bulk_webincli process (check if the [1] index works in this case)
+        transfer_integrity_ch = TRANSFER_INTEGRITY(params.uuid, params.transfer_output, params.transfer_flag)
+        metadata_submission_ch = METADATA_SUBMISSION(TRANSFER_INTEGRITY.out.spreadsheet_dir, webin_account, webin_password, action, xml_output, environment)
+        bulk_webincli_ch = BULK_WEBINCLI(METADATA_SUBMISSION.out.spreadsheet_log, webin_account, webin_password, context, TRANSFER_INTEGRITY.out.dataFiles_dir, mode, webinCli_dir, environment)
+
+        metadata_emailer_ch = METADATA_EMAILER(METADATA_SUBMISSION.out.metadata_log, '/' , sender_email, rec_email, password)
+        bulkWebinCli_emailer_ch = WEBINCLI_EMAILER('/', BULK_WEBINCLI.out.webinCli_log, sender_email, rec_email, password)
 }
 
 workflow {
-    subworkflow(params.spreadsheet, params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.files_dir, params.mode, params.webinCli_dir) //emailer parameters needs to be added here
+    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
 }

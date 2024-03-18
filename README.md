@@ -6,7 +6,9 @@ bulk_webincli command to run standalone
 ` python3 bulk_webincli.py -s <spreadsheet_dir> -d <files_dir> -m <mode(submit/validate)> -u <Webin-####> -p <'password'> -g <context> -w <webin_cli software directory>`
 
 nextflow pipeline command to run
-`nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf --spreadsheet <absolute spreadsheet_dir.xlsx> --webin_account <Webin-####> --webin_password <'password'> --context <context(reads/genome..etc)> --mode <mode(submit/validate)>`
+` nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf  --webin_account <webin account id> --webin_password <webin account password>  --context <reads/genome> --mode <validate/submit> --senderEmail_password <email password> --uuid <uuid>`
+
+Add the `<sender_email>` and `<rec_email>` value in the `nextflow.config` file
 
 files directory: contains the files to be submitted (contains four fastq files for testing)
 

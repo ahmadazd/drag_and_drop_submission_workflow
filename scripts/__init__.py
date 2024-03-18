@@ -19,3 +19,6 @@ from .generate_xml import *
 from .spreadsheet_parsing import *
 from .submission import *
 from .bulk_webincli import *
+from .d_and_d_emailer import *
+from .transfer_integrity_check import *
+from .chr_list_generator import *
