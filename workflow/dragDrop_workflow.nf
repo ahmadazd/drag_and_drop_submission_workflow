@@ -21,7 +21,7 @@ include { EMAILER as METADATA_EMAILER } from '../modules/emailer.nf' //to link t
 include { EMAILER as WEBINCLI_EMAILER } from '../modules/emailer.nf' //to link the emailer.nf
 
 
-workflow subworkflow { 
+workflow dragDrop_workflow { 
     take:
 	    webin_account  
 	    webin_password
@@ -35,7 +35,7 @@ workflow subworkflow {
         password
         uuid
         transfer_output
-	transfer_flag
+	    transfer_flag
         environment
 
 
@@ -53,5 +53,5 @@ workflow subworkflow {
 }
 
 workflow {
-    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
+    dragDrop_workflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
 }
