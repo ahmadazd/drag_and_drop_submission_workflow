@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python
 
 # Copyright [2020] EMBL-European Bioinformatics Institute
 #

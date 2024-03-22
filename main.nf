@@ -84,10 +84,9 @@ assert params.transfer_output, "Parameter 'transfer_output' is not specified"
 assert params.environment.toLowerCase() == 'test' || params.environment.toLowerCase() == 'prod' || params.environment.toLowerCase() == 'production',  "Parameter 'environment' is not specified, please specify one of the options(test or prod)"
 
 // Import modules/subworkflows
-include { subworkflow } from '../../subworkflow/subworkflow.nf'
-
+include { dragDrop_workflow } from './workflow/dragDrop_workflow.nf'
 // Run main workflow
 workflow {
     main:
-    subworkflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
+    dragDrop_workflow(params.webin_account, params.webin_password, params.action, params.xml_output, params.context, params.mode, params.webinCli_dir, params.sender_email, params.rec_email, params.senderEmail_password, params.uuid, params.transfer_output, params.transfer_flag, params.environment)
 }

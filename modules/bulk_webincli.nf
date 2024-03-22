@@ -23,13 +23,13 @@ output:
 script:
 if (params.environment.toLowerCase() == 'test') {
 	"""
-	bulk_webincli -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir -t
+	bulk_webincli.py -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir -t
 	"""
 }
 
 else if (params.environment.toLowerCase() == 'prod' || params.environment.toLowerCase() == 'production') {
 	"""
-	bulk_webincli -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir
+	bulk_webincli.py -s $spreadsheet -u $webin_account -p $webin_password -g $context -d $files_dir -m $mode -w $webinCli_dir
 	"""
 
 }
