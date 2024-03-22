@@ -1,25 +1,72 @@
-# drag_and_drop_submission_workflow
-metadata_submission command to run standalone  
-` python3 metadata_submission.py -f <spreadsheet_dir> -u <Webin-####> -p <'password'> -a add -t -o <output_dir>`
+# About the Project
+This nextflow pipeline automates the back end of the [SARS-CoV-2 Drag and Drop Uploader Tool](https://ebi-ait.github.io/sars-cov2-data-upload/), which was designed to make it easier to submit such raw and assembled sequence data to the European Nucleotide Archive (ENA).     
+<br>
+The Uploader Tool requires no technical skills from users and very little knowledge of the ENA’s submission process. It was developed in collaboration with the Archive Infrastructure and Technology (AIT) team and the ENA.
 
-bulk_webincli command to run standalone
-` python3 bulk_webincli.py -s <spreadsheet_dir> -d <files_dir> -m <mode(submit/validate)> -u <Webin-####> -p <'password'> -g <context> -w <webin_cli software directory>`
+## About the pipeline/s
+Once a user has uploaded their user metadata spreadsheet and data files via the front end of the tool (following the instructions [here](https://ebi-ait.github.io/sars-cov2-data-upload/app-documentation)), this nextflow pipeline should be run in order to:
 
-nextflow pipeline command to run
-` nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf  --webin_account <webin account id> --webin_password <webin account password>  --context <reads/genome> --mode <validate/submit> --senderEmail_password <email password> --uuid <uuid>`
+1. Validate data file integrity
+2. Validate metadata provided in the spreadsheet
+3. Generate and submit (where necessary) Studies and Samples
+4. Submit Runs and/or Analysis objects to the ENA via Webin-CLI
+5. Send metadata and data submission receipts to a specified email address
 
-Add the `<sender_email>` and `<rec_email>` value in the `nextflow.config` file
+**Please note there are 2 versions of this pipeline - the ‘main’ and the ‘stand-alone’**: 
+<br>
+- The ``main pipeline`` includes a file transfer and integrity check step, which moves files from an Amazon S3 bucket to the CODON cluster in the ENA, and verifies data file checksums.
+- The ``stand-alone pipeline`` omits these steps.
 
-files directory: contains the files to be submitted (contains four fastq files for testing)
+# Getting started
+## Installation
+```
+git clone https://github.com/ahmadazd/drag_and_drop_submission_workflow.git
+```
 
-output directory : contains the metadata_submission outputs ((experimental_spreadsheet)) and log files
+### Install dependencies
+(If you [run the pipeline using Docker or Singularity](ena_dragdrop_image), you can skip this step)
+```
+conda env create -f environment.yaml
+```
 
-webin-cli directory : contains the webin_cli software
+# Running the pipeline
+Regardless of which version of the pipeline you will be running, the ``nextflow.config`` file should first be edited like so in order to receieve the submission receipts:
+```
+params.sender_email= "<add sender email address here>"
+params.rec_email= "<add receipient email address here>"
+```
 
-spreadsheets directory : contains the metadata spreadsheet (contains two template spreadsheets)
+## Main pipeline
+Run:
+```
+nextflow run pipeline/workflow/drag_and_drop_workflow/drag_and_drop_workflow.nf --webin_account su-<Webin-ID> --webin_password '<password>' --context <reads or genome> --mode <submit or validate> --senderEmail_password '<password>' --environment '<prod or test>'
+```
+specifying:
+- The ``submitter’s Webin-ID``, with 'su' appended
+- The ``ENA superuser password``
+- The appropriate data context for Webin-CLI - i.e ``'reads' or 'genome'``
+- The mode of submission - ``submit or validate``
+- The ``password for the sender email account``
+- The server to submit data to - ``'test' or 'production'``    
 
-### NOTE: before running the Nextflow workflow run the following command (the first time only)
+## Stand-alone pipeline
+If you do not wish to transfer data and metadata files to the ENA compute cluster, and wish to skip the md5sum check, you can run the Stand-alone pipeline instead:
+```
+nextflow run main.nf  --webin_account su-<Webin-ID> --webin_password '<password>' --context <reads or genome> --mode <submit or validate> --environment '<prod or test>'
+```
+## Running with Docker/Singularity
+You can also run both versions of the pipelines in a Docker or Singularity container if you are concerned about operating system dependencies.    
+<br>
+For the ``main pipeline`` append your nextflow command with:
+```
+-with-docker enacontainers/ena_main_dragdrop_image
+or
+-with-singularity enacontainers/ena_main_dragdrop_image
+```
 
-`pip install -e .`
-
-
+For the ``Stand-alone pipeline`` append with:
+```
+-with-docker enacontainers/ena_dragdrop_image
+or
+-with-singularity enacontainers/ena_dragdrop_image
+```
