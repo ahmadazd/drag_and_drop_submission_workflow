@@ -56,6 +56,7 @@ nextflow run main.nf  --webin_account su-<Webin-ID> --webin_password '<password>
 ```
 ## Running with Docker/Singularity
 You can also run both versions of the pipelines in a Docker or Singularity container if you are concerned about operating system dependencies.    
+Please make sure to install Docker or Singularity before using the images below.
 <br>
 For the ``main pipeline`` append your nextflow command with:
 ```
@@ -70,3 +71,9 @@ For the ``Stand-alone pipeline`` append with:
 or
 -with-singularity enacontainers/ena_dragdrop_image
 ```
+## Running with Conda
+To run the pipeline with the Conda environment, append:
+```
+-profile conda
+```
+to either pipeline command.
