@@ -50,7 +50,13 @@ specifying:
 - The server to submit data to - ``'test' or 'production'``    
 
 ## Stand-alone pipeline
-If you do not wish to transfer data and metadata files to the ENA compute cluster, and wish to skip the md5sum check, you can run the Stand-alone pipeline instead:
+If you do not wish to transfer data and metadata files to the ENA compute cluster, and wish to skip the md5sum check, you can run the Stand-alone pipeline instead.
+<br>
+<br>
+Make sure to first transfer all data files to the ```files``` directory, and the latest copy of the metadata spreadsheet to the ```spreadsheets``` directory.
+<br>
+<br>
+Then run the pipeline as below:
 ```
 nextflow run main.nf  --webin_account su-<Webin-ID> --webin_password '<password>' --context <reads or genome> --mode <submit or validate> --environment '<prod or test>'
 ```
