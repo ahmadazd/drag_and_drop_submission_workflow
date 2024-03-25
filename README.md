@@ -83,3 +83,11 @@ To run the pipeline with the Conda environment, append:
 -profile conda
 ```
 to either pipeline command.
+
+## Output files and directories
+
+
+
+## Contact
+Ahmad Zyoud:     
+Zahra Waheed: zahra@ebi.ac.uk
