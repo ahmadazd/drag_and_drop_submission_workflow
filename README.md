@@ -60,6 +60,15 @@ Then run the pipeline as below:
 ```
 nextflow run main.nf  --webin_account su-<Webin-ID> --webin_password '<password>' --context <reads or genome> --mode <submit or validate> --environment '<prod or test>'
 ```
+
+## Output directories
+
+- ```output/xml_archive``` : containing submitted Study and Sample xmls
+- ```output/logs``` : log files for Study and Sample submission
+- ```../webin-cli``` : output directory for Webin-CLI
+- ```./transfer_output``` : **for main pipeline only**.  This will contain data files and the latest user spreadsheet uploaded via the tool, as well as md5 values and logs for the file transfer and integrity step of the pipeline.
+
+
 ## Running with Docker/Singularity
 You can also run both versions of the pipelines in a Docker or Singularity container if you are concerned about operating system dependencies.    
 Please make sure to install Docker or Singularity before using the images below.
@@ -83,10 +92,6 @@ To run the pipeline with the Conda environment, append:
 -profile conda
 ```
 to either pipeline command.
-
-## Output files and directories
-
-
 
 ## Contact
 Ahmad Zyoud:     
